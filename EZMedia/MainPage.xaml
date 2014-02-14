@@ -17,7 +17,7 @@
         <DataTemplate x:Key="songDisplayTemplate">
             <StackPanel Margin="0,0,0,17" Orientation="Horizontal" >
                 <CheckBox Visibility="Collapsed" Margin="0,0,0,0"></CheckBox>
-                <StackPanel Tap="StackPanelSong_Tap" Tag="{Binding }">
+                <StackPanel >
                     <TextBlock Text="{Binding Name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
                     <TextBlock Text="{Binding Artist}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>
                 </StackPanel>
@@ -52,7 +52,11 @@
             <!--Pivot item one-->
             <phone:PivotItem Header="songs" Margin="12,30,12,65">
                 <!--Double line list with text wrapping-->
-                <phone:LongListSelector Margin="0,0,-12,0" ItemsSource="{Binding Songs}" ItemTemplate="{StaticResource songDisplayTemplate}">
+                <phone:LongListSelector Margin="0,0,-12,0" 
+                                        ItemsSource="{Binding Songs}" 
+                                        ItemTemplate="{StaticResource songDisplayTemplate}" 
+                                        Tap="LongListSelectorSongs_Tap" 
+                                        Tag="{Binding Songs}">
                 </phone:LongListSelector>         
             </phone:PivotItem>
 
@@ -62,7 +66,9 @@
                 <phone:LongListSelector Margin="0,0,-12,0" ItemsSource="{Binding Artists}">
                     <phone:LongListSelector.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Margin="0,0,0,17">
+                            <StackPanel Margin="0,0,0,17" 
+                                        Tag="{Binding }" 
+                                        Tap="LongListSelectorArtists_Tap">
                                 <TextBlock Text="{Binding ArtistName}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
                             </StackPanel>
                         </DataTemplate>
@@ -76,9 +82,15 @@
                 <phone:LongListSelector Margin="0,0,-12,0" ItemsSource="{Binding Albums}">
                     <phone:LongListSelector.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Margin="0,0,0,17">
-                                <TextBlock Text="{Binding AlbumName}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
-                                <TextBlock Text="{Binding ArtistName}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>
+                            <StackPanel Margin="0,10,0,0" 
+                                        Orientation="Horizontal" 
+                                        Tap="LongListSelectorAlbums_Tap"
+                                        Tag="{Binding }">
+                                <Image Source="{Binding AlbumArt}" Width="150"></Image>
+                                <StackPanel Margin="0,0,0,17">
+                                    <TextBlock Text="{Binding AlbumName}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="36"/>
+                                    <TextBlock Text="{Binding ArtistName}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>
+                                </StackPanel>
                             </StackPanel>
                         </DataTemplate>
                     </phone:LongListSelector.ItemTemplate>

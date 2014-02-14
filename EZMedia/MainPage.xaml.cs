@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Media;
 using EZMedia.Resources;
 using EZMedia.Views;
 using EZMedia.ViewModels;
+using System.Collections.ObjectModel;
 
 namespace EZMedia
 {
@@ -47,11 +48,36 @@ namespace EZMedia
             }
         }
 
-        private void StackPanelSong_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        private void LongListSelectorSongs_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            StackPanel sp = (StackPanel)sender;
-            App.ViewModel.SongPlayingVM = new SongPlayingViewModel((SongInfo)sp.Tag);
+            LongListSelector lls = (LongListSelector)sender;
+            ReadOnlyCollection<SongInfo> songs = (ReadOnlyCollection<SongInfo>)lls.Tag;
+            TextBlock tb = (TextBlock)e.OriginalSource;
+            SongInfo songToPlay = (SongInfo)tb.DataContext;
+            App.ViewModel.SongPlayingVM = new SongPlayingViewModel(songs, songToPlay);
             NavigationService.Navigate(new Uri("/Views/SongPlayingPage.xaml", UriKind.Relative));
+        }
+
+        private void LongListSelectorArtists_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            LongListSelector lls = (LongListSelector)sender;
+            ArtistInfo artInfo = (ArtistInfo)lls.Tag;
+
+            //TODO: MAKE ARTIST PAGE THAT DISPLAYS ALL ALBUMS
+
+            //App.ViewModel.SongPlayingVM = new SongPlayingViewModel(songs, songToPlay);
+            //NavigationService.Navigate(new Uri("/Views/SongPlayingPage.xaml", UriKind.Relative));
+        }
+
+        private void LongListSelectorAlbums_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            LongListSelector lls = (LongListSelector)sender;
+            AlbumInfo ai = (AlbumInfo)lls.Tag;
+
+            //TODO: MAKE ALBUM PAGE THAT DISPLAYS ALBUM ART AND ALL SONGS ON ALBUM
+
+            //App.ViewModel.SongPlayingVM = new SongPlayingViewModel(ai.Songs, ai);
+            //NavigationService.Navigate(new Uri("/Views/SongPlayingPage.xaml", UriKind.Relative));
         }
 
         // Sample code for building a localized ApplicationBar

@@ -5,10 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.IsolatedStorage;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 using System.Xml.Serialization;
+using System.Windows.Media.Imaging;
 
 namespace EZMedia
 {
@@ -111,28 +109,31 @@ namespace EZMedia
 
     }
 
-    //TODO: Add Album art
     public class AlbumInfo
     {
         public string ArtistName { get; set; }
         public string AlbumName { get; set; }
-        //public ObservableCollection<SongInfo> Songs { get; }
+        public ReadOnlyCollection<SongInfo> Songs { get; private set; }
+        public BitmapImage AlbumArt { get; set; }
 
-        public AlbumInfo(string artistName, string albumName)
+        public AlbumInfo(string artistName, string albumName, ReadOnlyCollection<SongInfo> songs, BitmapImage image)
         {
             ArtistName = artistName;
             AlbumName = albumName;
+            Songs = songs;
+            AlbumArt = image;
         }
     }
 
     public class ArtistInfo
     {
         public string ArtistName { get; set; }
-        //public ObservableCollection<AlbumInfo> Albums { get; }
+        public ReadOnlyCollection<AlbumInfo> Albums { get; private set; }
 
-        public ArtistInfo(string artistName)
+        public ArtistInfo(string artistName, ReadOnlyCollection<AlbumInfo> albums)
         {
             ArtistName = artistName;
+            Albums = albums;
         }
     }
 

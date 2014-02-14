@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
 using Microsoft.Xna.Framework;
@@ -7,6 +8,8 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using EZMedia.Resources;
 using EZMedia.ViewModels;
+using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace EZMedia.ViewModels
 {
@@ -15,19 +18,33 @@ namespace EZMedia.ViewModels
         public MainViewModel()
         {
             _library = new MediaLibrary();
-            this.Songs = new ObservableCollection<SongInfo>();
-            this.Albums = new ObservableCollection<AlbumInfo>();
-            this.Artists = new ObservableCollection<ArtistInfo>();
+            _Songs = new List<SongInfo>();
+            _Albums = new List<AlbumInfo>();
+            _Artists = new List<ArtistInfo>();
             this.Playlists = new ObservableCollection<EZPlaylist>();
-            this.SongPlayingVM = new SongPlayingViewModel(new SongInfo());
         }
 
         /// <summary>
         /// A collection for SongInfo objects.
         /// </summary>
-        public ObservableCollection<SongInfo> Songs { get; private set; }
-        public ObservableCollection<AlbumInfo> Albums { get; private set; }
-        public ObservableCollection<ArtistInfo> Artists { get; private set; }
+
+        private List<SongInfo> _Songs;
+        public ReadOnlyCollection<SongInfo> Songs{
+            get { return _Songs.AsReadOnly();  }
+        }
+
+        private List<AlbumInfo> _Albums;
+        public ReadOnlyCollection<AlbumInfo> Albums 
+        {
+            get { return _Albums.AsReadOnly(); }
+        }
+
+        private List<ArtistInfo> _Artists;
+        public ReadOnlyCollection<ArtistInfo> Artists 
+        {
+            get { return _Artists.AsReadOnly(); } 
+        }
+
         public ObservableCollection<EZPlaylist> Playlists { get; private set; }
 
         public SongPlayingViewModel SongPlayingVM { get; set; }
@@ -41,23 +58,23 @@ namespace EZMedia.ViewModels
         }
 
         /// <summary>
-        /// Creates and adds a few SongInfo objects into the Items collection.
+        /// Loads Songs, Albums, Artists and Playlists from the phone into the app
         /// </summary>
         public void LoadData()
         {
             foreach (Song song in _library.Songs)
             {
-                this.Songs.Add(createSongInfoFromSong(song));
+                _Songs.Add(createSongInfoFromSong(song));
             }
 
             foreach (Album album in _library.Albums)
             {
-                this.Albums.Add(createAlbumInfoFromAlbum(album));
+                _Albums.Add(createAlbumInfoFromAlbum(album));
             }
 
             foreach (Artist artist in _library.Artists)
             {
-                this.Artists.Add(createArtistInfoFromArtist(artist));
+                _Artists.Add(createArtistInfoFromArtist(artist));
             }
 
             this.IsDataLoaded = true;
@@ -76,12 +93,34 @@ namespace EZMedia.ViewModels
 
         private AlbumInfo createAlbumInfoFromAlbum(Album album)
         {
-            return new AlbumInfo(album.Artist.Name, album.Name);
+            List<SongInfo> albumSongs = new List<SongInfo>();
+            foreach (Song song in album.Songs)
+            {
+                albumSongs.Add(createSongInfoFromSong(song));
+            }
+
+            if (album.HasArt)
+            {
+                BitmapImage image = new BitmapImage();
+                Stream stream = album.GetAlbumArt();
+                image.SetSource(stream);
+                return new AlbumInfo(album.Artist.Name, album.Name, albumSongs.AsReadOnly(), image);
+            }
+            else
+            {
+               BitmapImage image = new BitmapImage(new Uri("/Assets/Tiles/FlipCycleTileSmall.png", UriKind.Relative));
+               return new AlbumInfo(album.Artist.Name, album.Name, albumSongs.AsReadOnly(), image);
+            }
         }
 
         private ArtistInfo createArtistInfoFromArtist(Artist artist)
         {
-            return new ArtistInfo(artist.Name);
+            List<AlbumInfo> artistAlbums = new List<AlbumInfo>();
+            foreach(Album album in artist.Albums)
+            {
+                artistAlbums.Add(createAlbumInfoFromAlbum(album));
+            }
+            return new ArtistInfo(artist.Name, artistAlbums.AsReadOnly());
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
