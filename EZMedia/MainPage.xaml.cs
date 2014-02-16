@@ -60,24 +60,22 @@ namespace EZMedia
 
         private void LongListSelectorArtists_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            LongListSelector lls = (LongListSelector)sender;
+            StackPanel lls = (StackPanel)sender;
             ArtistInfo artInfo = (ArtistInfo)lls.Tag;
 
-            //TODO: MAKE ARTIST PAGE THAT DISPLAYS ALL ALBUMS
-
-            //App.ViewModel.SongPlayingVM = new SongPlayingViewModel(songs, songToPlay);
-            //NavigationService.Navigate(new Uri("/Views/SongPlayingPage.xaml", UriKind.Relative));
+            //TODO: MAKE ARTIST PAGE THAT DISPLAYS ALL ALBUMS AND SONGS
+            App.ViewModel.SongsForArtistVM = new SongsForArtistViewModel(artInfo);
+            NavigationService.Navigate(new Uri("/Views/SongsForArtist.xaml", UriKind.Relative));
         }
 
         private void LongListSelectorAlbums_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            LongListSelector lls = (LongListSelector)sender;
+            StackPanel lls = (StackPanel)sender;
             AlbumInfo ai = (AlbumInfo)lls.Tag;
 
             //TODO: MAKE ALBUM PAGE THAT DISPLAYS ALBUM ART AND ALL SONGS ON ALBUM
-
-            //App.ViewModel.SongPlayingVM = new SongPlayingViewModel(ai.Songs, ai);
-            //NavigationService.Navigate(new Uri("/Views/SongPlayingPage.xaml", UriKind.Relative));
+            App.ViewModel.SongsInAlbumVM = new SongsInAlbumViewModel(ai);
+            NavigationService.Navigate(new Uri("/Views/SongsInAlbum.xaml", UriKind.Relative));
         }
 
         // Sample code for building a localized ApplicationBar

@@ -1,5 +1,5 @@
 ﻿<phone:PhoneApplicationPage
-    x:Class="EZMedia.Views.SongPlayingPage"
+    x:Class="EZMedia.Views.SongsInAlbum"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
@@ -23,25 +23,12 @@
         <!--TitlePanel contains the name of the application and page title-->
         <StackPanel Grid.Row="0" Margin="12,17,0,28">
             <TextBlock Text="EZMedia" Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBlock Text="{Binding CurrentAlbumInfo.ArtistName}" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
         </StackPanel>
 
         <!--ContentPanel - place additional content here-->
         <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-            <TextBlock Text="{Binding CurrentSongInfo.Artist}" Margin="0,10,20,611" Style="{StaticResource PhoneTextTitle1Style}" FontSize="48"/>
-            <TextBlock Text="{Binding CurrentSongInfo.Album}" Margin="-1,90,10,535" Style="{StaticResource PhoneTextTitle1Style}" FontSize="40"/>
-            <Image Source="{Binding AlbumArt}" Margin="10,166,206,307"></Image>
-            <phone:LongListSelector  ItemsSource="{Binding Songs, BindsDirectlyToSource=True}" Name="NowPlayingList" Margin="255,166,20,307">
-                <phone:LongListSelector.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="20"/>
-                    </DataTemplate>
-                </phone:LongListSelector.ItemTemplate>
-            </phone:LongListSelector>
-            <Button Name="PrevButton" Margin="34,457,346,160"></Button>
-            <Button Name="PlayButton" Margin="196,457,184,160"></Button>
-            <Button Name="NextButton" Margin="346,457,34,160"></Button>
-            <Button Name="ShuffleButton" Margin="122,571,258,46"></Button>
-            <Button Name="RepeatButton" Margin="285,571,94,46"></Button>
+
         </Grid>
     </Grid>
 

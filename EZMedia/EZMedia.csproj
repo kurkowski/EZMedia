@@ -108,8 +108,16 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\PlayingQueueViewModel.cs" />
     <Compile Include="ViewModels\SongPlayingViewModel.cs" />
+    <Compile Include="ViewModels\SongsForArtistViewModel.cs" />
+    <Compile Include="ViewModels\SongsInAlbumViewModel.cs" />
     <Compile Include="Views\SongPlayingPage.xaml.cs">
       <DependentUpon>SongPlayingPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SongsForArtist.xaml.cs">
+      <DependentUpon>SongsForArtist.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SongsInAlbum.xaml.cs">
+      <DependentUpon>SongsInAlbum.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +130,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SongPlayingPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SongsForArtist.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SongsInAlbum.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -163,6 +179,9 @@
   <ItemGroup>
     <Folder Include="Commands\" />
     <Folder Include="SampleData\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Phone.Controls, Version=8.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />

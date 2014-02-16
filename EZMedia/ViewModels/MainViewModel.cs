@@ -40,14 +40,16 @@ namespace EZMedia.ViewModels
         }
 
         private List<ArtistInfo> _Artists;
-        public ReadOnlyCollection<ArtistInfo> Artists 
+        public ReadOnlyCollection<ArtistInfo> Artists
         {
-            get { return _Artists.AsReadOnly(); } 
+            get { return _Artists.AsReadOnly(); }
         }
 
         public ObservableCollection<EZPlaylist> Playlists { get; private set; }
 
         public SongPlayingViewModel SongPlayingVM { get; set; }
+        public SongsForArtistViewModel SongsForArtistVM { get; set; }
+        public SongsInAlbumViewModel SongsInAlbumVM { get; set; }
 
         private MediaLibrary _library;
 
