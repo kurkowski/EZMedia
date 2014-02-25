@@ -47,7 +47,18 @@ namespace EZMedia.ViewModels
 
         public ObservableCollection<EZPlaylist> Playlists { get; private set; }
 
-        public SongPlayingViewModel SongPlayingVM { get; set; }
+        private SongPlayingViewModel songPlayingVM = null;
+        public SongPlayingViewModel SongPlayingVM 
+        {
+            get
+            {
+                if (songPlayingVM == null)
+                {
+                    songPlayingVM = new SongPlayingViewModel();
+                }
+                return songPlayingVM;
+            }
+        }
         public SongsForArtistViewModel SongsForArtistVM { get; set; }
         public SongsInAlbumViewModel SongsInAlbumVM { get; set; }
 
@@ -110,7 +121,7 @@ namespace EZMedia.ViewModels
             }
             else
             {
-               BitmapImage image = new BitmapImage(new Uri("/Assets/Tiles/FlipCycleTileSmall.png", UriKind.Relative));
+               BitmapImage image = new BitmapImage(new Uri("/Assets/NoAlbumArt.png", UriKind.Relative));
                return new AlbumInfo(album.Artist.Name, album.Name, albumSongs.AsReadOnly(), image);
             }
         }

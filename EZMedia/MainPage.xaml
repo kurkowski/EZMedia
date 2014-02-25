@@ -48,7 +48,41 @@
          -->
 
         <!--Pivot Control-->
-        <phone:Pivot Title="EZMedia">
+        <phone:Pivot Name="EZMediaPivot" Title="EZMedia">
+            <phone:PivotItem Name="NowPlayingPivot" Header="playing" Margin="12,30,12,65">
+                <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+                    <TextBlock Text="{Binding CurrentSongInfo.Artist}" Margin="0,10,20,477" Style="{StaticResource PhoneTextTitle1Style}" FontSize="32"/>
+                    <TextBlock Text="{Binding CurrentSongInfo.Album}" Margin="0,64,9,419" Style="{StaticResource PhoneTextTitle1Style}" FontSize="24"/>
+                    <Image Source="{Binding AlbumArt}" Margin="10,122,204,196"></Image>
+
+                    <phone:LongListSelector  ItemsSource="{Binding Songs}" Name="NowPlayingList" Margin="233,122,20,196">
+                        <phone:LongListSelector.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Opacity="0.0"></Image>
+                                    <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="20"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </phone:LongListSelector.ItemTemplate>
+                    </phone:LongListSelector>
+                    <Button BorderThickness="0" Width="80" Height="80" Name="PrevButton" Margin="24,368,326,88">
+                        <Image Source="/Assets/MusicButtons/PreviousSong.png"/>
+                    </Button>
+                    <Button Command="{Binding PlayCommand}" BorderThickness="0" Width="80" Height="80" Name="PlayButton" Margin="172,368,173,88">
+                        <Image Source="{Binding PlaySongPictureSource}"/>
+                    </Button>
+                    <Button BorderThickness="0" Width="80" Height="80" Name="NextButton" Margin="320,368,33,88">
+                        <Image Source="/Assets/MusicButtons/NextSong.png"/>
+                    </Button>
+                    <Button BorderThickness="0" Width="80" Height="80" Name="ShuffleButton" Margin="98,456,241,0">
+                        <Image Source="{Binding ShuffleSongPictureSource}"/>
+                    </Button>
+                    <Button BorderThickness="0" Width="80" Height="80" Name="RepeatButton" Margin="246,456,97,0">
+                        <Image Source="{Binding RepeatSongPictureSource}"/>
+                    </Button>
+                </Grid>
+            </phone:PivotItem>
+
             <!--Pivot item one-->
             <phone:PivotItem Header="songs" Margin="12,30,12,65">
                 <!--Double line list with text wrapping-->

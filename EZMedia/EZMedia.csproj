@@ -93,6 +93,11 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Commands\NextSongCommand.cs" />
+    <Compile Include="Commands\PlayPauseCommand.cs" />
+    <Compile Include="Commands\PreviousSongCommand.cs" />
+    <Compile Include="Commands\RepeatSongsCommand.cs" />
+    <Compile Include="Commands\ShuffleSongsCommand.cs" />
     <Compile Include="LocalizedStrings.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -110,9 +115,6 @@
     <Compile Include="ViewModels\SongPlayingViewModel.cs" />
     <Compile Include="ViewModels\SongsForArtistViewModel.cs" />
     <Compile Include="ViewModels\SongsInAlbumViewModel.cs" />
-    <Compile Include="Views\SongPlayingPage.xaml.cs">
-      <DependentUpon>SongPlayingPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\SongsForArtist.xaml.cs">
       <DependentUpon>SongsForArtist.xaml</DependentUpon>
     </Compile>
@@ -126,10 +128,6 @@
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
     <Page Include="MainPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SongPlayingPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -153,7 +151,37 @@
     <Content Include="Assets\ApplicationIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\NoAlbumArt.png" />
+    <Content Include="Assets\MusicButtons\NextSong.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\MusicButtons\PauseButton.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\MusicButtons\PlayButton.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\MusicButtons\PreviousSong.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\MusicButtons\RepeatSong.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\MusicButtons\RepeatSongs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\MusicButtons\RepeatSongsNotClicked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\MusicButtons\ShuffleSongs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\MusicButtons\ShuffleSongsNotClicked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\NoAlbumArt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\nothing.wma" />
     <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -177,7 +205,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Commands\" />
     <Folder Include="SampleData\" />
   </ItemGroup>
   <ItemGroup>

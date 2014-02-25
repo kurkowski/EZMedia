@@ -33,15 +33,28 @@
             <phone:LongListSelector  ItemsSource="{Binding Songs, BindsDirectlyToSource=True}" Name="NowPlayingList" Margin="255,166,20,307">
                 <phone:LongListSelector.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="20"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Opacity="0.0"></Image>
+                            <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="20"/>
+                        </StackPanel>
                     </DataTemplate>
                 </phone:LongListSelector.ItemTemplate>
             </phone:LongListSelector>
-            <Button Name="PrevButton" Margin="34,457,346,160"></Button>
-            <Button Name="PlayButton" Margin="196,457,184,160"></Button>
-            <Button Name="NextButton" Margin="346,457,34,160"></Button>
-            <Button Name="ShuffleButton" Margin="122,571,258,46"></Button>
-            <Button Name="RepeatButton" Margin="285,571,94,46"></Button>
+            <Button BorderThickness="0" Width="80" Height="80" Name="PrevButton" Margin="40,457,336,159">
+                <Image Source="/Assets/MusicButtons/PreviousSong.png"/>
+            </Button>
+            <Button Command="{Binding PlayCommand}" BorderThickness="0" Width="80" Height="80" Name="PlayButton" Margin="194,457,179,159">
+                <Image Source="{Binding PlaySongPictureSource}"/>
+            </Button>
+            <Button BorderThickness="0" Width="80" Height="80" Name="NextButton" Margin="348,457,34,160">
+                <Image Source="/Assets/MusicButtons/NextSong.png"/>
+            </Button>
+            <Button BorderThickness="0" Width="80" Height="80" Name="ShuffleButton" Margin="117,571,258,46">
+                <Image Source="{Binding ShuffleSongPictureSource}"/>
+            </Button>
+            <Button BorderThickness="0" Width="80" Height="80" Name="RepeatButton" Margin="271,571,94,46">
+                <Image Source="{Binding RepeatSongPictureSource}"/>
+            </Button>
         </Grid>
     </Grid>
 

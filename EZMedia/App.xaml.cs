@@ -8,6 +8,10 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using EZMedia.Resources;
 using EZMedia.ViewModels;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using System.Windows.Resources;
 
 namespace EZMedia
 {

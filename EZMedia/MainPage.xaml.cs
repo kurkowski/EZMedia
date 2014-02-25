@@ -22,18 +22,10 @@ namespace EZMedia
         // Constructor
         public MainPage()
         {
-            try
-            {
-                InitializeComponent();
-            }
-            catch (Exception e)
-            {
-                e.ToString();
-            }
+            InitializeComponent();
 
-            // Set the data context of the listbox control to the sample data
             DataContext = App.ViewModel;
-            
+            NowPlayingPivot.DataContext = App.ViewModel.SongPlayingVM;
 
             // Sample code to localize the ApplicationBar
             //BuildLocalizedApplicationBar();
@@ -48,22 +40,24 @@ namespace EZMedia
             }
         }
 
+        
+
         private void LongListSelectorSongs_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
             LongListSelector lls = (LongListSelector)sender;
             ReadOnlyCollection<SongInfo> songs = (ReadOnlyCollection<SongInfo>)lls.Tag;
             TextBlock tb = (TextBlock)e.OriginalSource;
             SongInfo songToPlay = (SongInfo)tb.DataContext;
-            App.ViewModel.SongPlayingVM = new SongPlayingViewModel(songs, songToPlay);
-            NavigationService.Navigate(new Uri("/Views/SongPlayingPage.xaml", UriKind.Relative));
+            EZMediaPivot.SelectedIndex = 0;
+            App.ViewModel.SongPlayingVM.UpdateNowPlayingSong(songs, songToPlay);
+            NowPlayingPivot.DataContext = App.ViewModel.SongPlayingVM;
+            //NavigationService.Navigate(new Uri("/Views/SongPlayingPage.xaml", UriKind.Relative));
         }
 
         private void LongListSelectorArtists_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
             StackPanel lls = (StackPanel)sender;
             ArtistInfo artInfo = (ArtistInfo)lls.Tag;
-
-            //TODO: MAKE ARTIST PAGE THAT DISPLAYS ALL ALBUMS AND SONGS
             App.ViewModel.SongsForArtistVM = new SongsForArtistViewModel(artInfo);
             NavigationService.Navigate(new Uri("/Views/SongsForArtist.xaml", UriKind.Relative));
         }
@@ -72,8 +66,6 @@ namespace EZMedia
         {
             StackPanel lls = (StackPanel)sender;
             AlbumInfo ai = (AlbumInfo)lls.Tag;
-
-            //TODO: MAKE ALBUM PAGE THAT DISPLAYS ALBUM ART AND ALL SONGS ON ALBUM
             App.ViewModel.SongsInAlbumVM = new SongsInAlbumViewModel(ai);
             NavigationService.Navigate(new Uri("/Views/SongsInAlbum.xaml", UriKind.Relative));
         }

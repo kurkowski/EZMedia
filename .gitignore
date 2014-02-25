@@ -183,3 +183,7 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 EZMedia/EZMedia.csproj
+AudioPlayback/AudioPlayback.csproj
+AudioPlayback/AudioPlayer.cs
+EZMedia/Assets/nothing.wma
+EZMedia/Views/SongPlayingPage.xaml
