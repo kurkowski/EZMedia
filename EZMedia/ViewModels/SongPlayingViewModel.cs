@@ -21,33 +21,28 @@ namespace EZMedia.ViewModels
 
         public SongPlayingViewModel()
         {
-            // Timer to run the XNA internals (MediaPlayer is from XNA)
-            DispatcherTimer dt = new DispatcherTimer();
-            dt.Interval = TimeSpan.FromMilliseconds(33);
-            dt.Tick += delegate { try { FrameworkDispatcher.Update(); } catch { } };
-            dt.Start();
-
-            library = new MediaLibrary();
-            songs = new List<SongInfo>();
-            PlayCommand = new PlayPauseCommand(null, this);
+            _media_player = new EZMediaPlayer();
+            _library = new MediaLibrary();
+            _media_player.CurrentMediaChanged += _media_player_CurrentMediaChanged;
+            _media_player.MediaStateChanged += _media_player_MediaStateChanged;
 
             ShuffleSongPictureSource = "/Assets/MusicButtons/ShuffleSongsNotClicked.png";
             RepeatSongPictureSource = "/Assets/MusicButtons/RepeatSongsNotClicked.png";
-            UpdateNowPlayingSong(new List<SongInfo>().AsReadOnly(), null);
         }
 
-        private MediaLibrary library;
+        private MediaLibrary _library;
+        private EZMediaPlayer _media_player;
 
-        private ICommand playCommand;
+        private ICommand _playCommand;
         public ICommand PlayCommand 
         {
             get
             {
-                return playCommand;
+                return _playCommand;
             }
             private set
             {
-                playCommand = value;
+                _playCommand = value;
                 NotifyPropertyChanged("PlayCommand");
             }
         }
@@ -56,135 +51,103 @@ namespace EZMedia.ViewModels
         public ICommand ShuffleSongsCommand { get; private set; }
         public ICommand RepeatSongsCommand { get; private set; }
 
-        private string playSongPictureSource;
+        private string _playSongPictureSource;
         public string PlaySongPictureSource
         {
             get
             {
-                return playSongPictureSource;
+                return _playSongPictureSource;
             }
             set
             {
-                playSongPictureSource = value;
+                _playSongPictureSource = value;
                 NotifyPropertyChanged("PlaySongPictureSource");
             }
         }
 
-        private string shuffleSongPictureSource;
+        private string _shuffleSongPictureSource;
         public string ShuffleSongPictureSource
         {
             get
             {
-                return shuffleSongPictureSource;
+                return _shuffleSongPictureSource;
             }
             set
             {
-                shuffleSongPictureSource = value;
+                _shuffleSongPictureSource = value;
                 NotifyPropertyChanged("ShuffleSongPictureSource");
             }
         }
 
-        private string repeatSongPictureSource;
+        private string _repeatSongPictureSource;
         public string RepeatSongPictureSource
         {
             get
             {
-                return repeatSongPictureSource;
+                return _repeatSongPictureSource;
             }
             set
             {
-                repeatSongPictureSource = value;
+                _repeatSongPictureSource = value;
                 NotifyPropertyChanged("RepeatSongPictureSource");
             }
         }
 
-        private List<SongInfo> songs;
+        private List<SongInfo> _songs;
         public ReadOnlyCollection<SongInfo> Songs
         {
             get
             {
-                return songs.AsReadOnly();
+                return _songs.AsReadOnly();
             }
             private set
             {
                 if (value != null)
                 {
-                    songs.Clear();
-                    songs.AddRange(value.ToList());
-                    NotifyPropertyChanged("Songs");
+                    _songs.Clear();
+                    _songs.AddRange(value.ToList());
                 }
             }
         }
-        public SongInfo CurrentSongInfo { get; private set; }
-        public BitmapImage AlbumArt { get; private set; }
+        private SongInfo _currentSongInfo;
+        public SongInfo CurrentSongInfo
+        {
+            get
+            {
+                return _currentSongInfo;
+            }
+            private set
+            {
+                _currentSongInfo = value;
+            }
+        }
+
+        private BitmapImage _albumArt;
+        public BitmapImage AlbumArt
+        {
+            get
+            {
+                return _albumArt;
+            }
+            private set
+            {
+                _albumArt = value;
+                NotifyPropertyChanged("AlbumArt");
+            }
+        }
 
         /// <summary>
         /// Method for passing along a song to play and a list of songs to be played after that.
         /// The "song" to play should also be contained in "songsToPlay"
         /// </summary>
         /// <param name="songsToPlay">List of songs to play</param>
-        /// <param name="songInfo">The currently selected song to play. This serves as the start point in the collection "songsToPlay". If it's null,
-        /// no song will play.</param>
+        /// <param name="songInfo">The currently selected song to play. This serves as the start point in the collection
+        /// "songsToPlay". If it's null, no song will play.</param>
         public void UpdateNowPlayingSong(ReadOnlyCollection<SongInfo> songsToPlay, SongInfo song)
         {
             CurrentSongInfo = song;
             Songs = songsToPlay;
             AlbumArt = findAlbumArt(song);
-            playSong();
-        }
-
-        /// <summary>
-        /// Plays the song that matches the CurrentSongInfo
-        /// </summary>
-        private void playSong()
-        {
-            if (CurrentSongInfo != null)
-            {
-                PlaySongPictureSource = "/Assets/MusicButtons/PauseButton.png";
-                reorderSongsWithCurrentSongFirst();
-                PlayCommand = new PlayPauseCommand(findSongFromSongInfo(), this);
-            }
-            else
-            {
-                PlaySongPictureSource = "/Assets/MusicButtons/PlayButton.png";
-            }
-        }
-
-        
-
-        /// <summary>
-        /// Checks the CurrentSongInfo for a match in the media library. When a match is found, it
-        /// returns the song.
-        /// </summary>
-        /// <returns></returns>
-        private Song findSongFromSongInfo()
-        {
-            foreach (Song song in library.Songs)
-            {
-                if (checkIfSongInfoIsSameAsSong(song))
-                {
-                    return song;
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// returns true if the Song object contains the same information as the
-        /// CurrentSongInfo
-        /// </summary>
-        /// <param name="song"></param>
-        /// <returns></returns>
-        private bool checkIfSongInfoIsSameAsSong(Song song)
-        {
-            if (song.Album.Name == CurrentSongInfo.Album &&
-                song.Artist.Name == CurrentSongInfo.Artist &&
-                song.Duration == CurrentSongInfo.Duration &&
-                song.Name == CurrentSongInfo.Name &&
-                song.TrackNumber == CurrentSongInfo.TrackNumber)
-                return true;
-            else
-                return false;
         }
 
         private BitmapImage findAlbumArt(SongInfo song)
@@ -192,7 +155,7 @@ namespace EZMedia.ViewModels
             BitmapImage image;
             if (song != null)
             {
-                Album album = library.Albums.Where(x => x.Name == song.Album).ToList()[0];
+                Album album = _library.Albums.Where(x => x.Name == song.Album).ToList()[0];
                 if (album.HasArt)
                 {
                     image = new BitmapImage();
@@ -210,41 +173,14 @@ namespace EZMedia.ViewModels
             return image;
         }
 
-        private void reorderSongsWithCurrentSongFirst()
+        private void _media_player_MediaStateChanged(object sender, EventArgs e)
         {
-            int index = 0; //index of CurrentSongInfo
-            List<SongInfo> tempList = new List<SongInfo>();
+            throw new NotImplementedException();
+        }
 
-            //traverse list until CurrentSongInfo is found
-            foreach(SongInfo song in Songs)
-            {
-                if (song == CurrentSongInfo)
-                {
-                    break;
-                }
-                index++;
-            }
-            //you don't need to reorder the list if CurrentSongInfo is the very first song in the list
-            if (index > 0)
-            {
-                //make a temporary list in the interval [CurrentSongInfo, last element of Songs]
-                for (int i = index; i < Songs.Count; i++)
-                {
-                    tempList.Add(Songs[i]);
-                }
-
-                //make another temp list in the interval [0, CurrentSongInfo-1]
-                List<SongInfo> tempList2 = new List<SongInfo>();
-                for (int j = 0; j < index; j++)
-                {
-                    tempList2.Add(Songs[j]);
-                }
-
-                //merge the lists
-                Songs = tempList.Concat(tempList2).ToList().AsReadOnly();
-                tempList.Clear();
-                tempList2.Clear();
-            }
+        private void _media_player_CurrentMediaChanged(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

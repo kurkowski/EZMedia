@@ -15,15 +15,55 @@
     
     <phone:PhoneApplicationPage.Resources>
         <DataTemplate x:Key="songDisplayTemplate">
-            <StackPanel Margin="0,0,0,17" Orientation="Horizontal" >
+            <StackPanel Margin="0,0,0,17" Orientation="Horizontal" Tap="LongListSelectorSongs_Tap">
                 <CheckBox Visibility="Collapsed" Margin="0,0,0,0"></CheckBox>
                 <StackPanel >
                     <TextBlock Text="{Binding Name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
-                    <TextBlock Text="{Binding Artist}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>
+                    <TextBlock Text="{Binding ArtistName}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
+        
+        <DataTemplate x:Key="NameGroupHeaderTemplate">
+            <Border Background="Transparent" Padding="5">
+                <Border Background="{StaticResource PhoneAccentBrush}" 
+                        BorderBrush="{StaticResource PhoneAccentBrush}" 
+                        BorderThickness="2" Width="62" 
+                        Height="62" 
+                        Margin="0,0,18,0" 
+                        HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding Key}" 
+                               Foreground="{StaticResource PhoneForegroundBrush}" 
+                               FontSize="48" Padding="6" 
+                               FontFamily="{StaticResource PhoneFontFamilySemiLight}" 
+                               HorizontalAlignment="Left" 
+                               VerticalAlignment="Center"/>
+                </Border>
+            </Border>
+        </DataTemplate>
+
+        <phone:JumpListItemBackgroundConverter x:Key="BackgroundConverter"/>
+        <phone:JumpListItemForegroundConverter x:Key="ForegroundConverter"/>
+        <Style x:Key="NameJumpListStyle" TargetType="phone:LongListSelector">
+            <Setter Property="GridCellSize"  Value="113,113"/>
+            <Setter Property="LayoutMode" Value="Grid" />
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Border Background="{Binding Converter={StaticResource BackgroundConverter}}" Width="113" Height="113" Margin="6" >
+                            <TextBlock Text="{Binding Key}" 
+                                       FontFamily="{StaticResource PhoneFontFamilySemiBold}" 
+                                       FontSize="48" Padding="6" 
+                                       Foreground="{Binding Converter={StaticResource ForegroundConverter}}" 
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
     </phone:PhoneApplicationPage.Resources>
+    
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
@@ -48,14 +88,16 @@
          -->
 
         <!--Pivot Control-->
-        <phone:Pivot Name="EZMediaPivot" Title="EZMedia">
-            <phone:PivotItem Name="NowPlayingPivot" Header="playing" Margin="12,30,12,65">
-                <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-                    <TextBlock Text="{Binding CurrentSongInfo.Artist}" Margin="0,10,20,477" Style="{StaticResource PhoneTextTitle1Style}" FontSize="32"/>
-                    <TextBlock Text="{Binding CurrentSongInfo.Album}" Margin="0,64,9,419" Style="{StaticResource PhoneTextTitle1Style}" FontSize="24"/>
-                    <Image Source="{Binding AlbumArt}" Margin="10,122,204,196"></Image>
+        <phone:Pivot Name="EZMediaPivot" Title="EZMedia" SelectionChanged="EZMediaPivot_SelectionChanged">
+            <phone:PivotItem Name="NowPlayingPivot" Header="playing" Margin="12,30,12,5">
+                <Grid x:Name="ContentPanel" Grid.Row="1">
+                    <TextBlock Text="{Binding CurrentSongInfo.Artist}" Margin="7,0,192,541" Style="{StaticResource PhoneTextTitle1Style}" FontSize="32"/>
+                    <TextBlock Text="{Binding CurrentSongInfo.Album}" Margin="0,57,192,484" Style="{StaticResource PhoneTextTitle1Style}" FontSize="24"/>
+                    <Image Source="{Binding AlbumArt}" Margin="10,117,199,200"></Image>
 
-                    <phone:LongListSelector  ItemsSource="{Binding Songs}" Name="NowPlayingList" Margin="233,122,20,196">
+                    <phone:LongListSelector  ItemsSource="{Binding Songs}" 
+                                             Name="NowPlayingList" 
+                                             Margin="272,119,10,200">
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -65,33 +107,40 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
-                    <Button BorderThickness="0" Width="80" Height="80" Name="PrevButton" Margin="24,368,326,88">
+                    <Button BorderThickness="0" Width="80" Height="80" Name="PrevButton" Margin="40,371,337,85">
                         <Image Source="/Assets/MusicButtons/PreviousSong.png"/>
                     </Button>
-                    <Button Command="{Binding PlayCommand}" BorderThickness="0" Width="80" Height="80" Name="PlayButton" Margin="172,368,173,88">
+                    <Button Command="{Binding PlayCommand}" BorderThickness="0" Width="80" Height="80" Name="PlayButton" Margin="184,371,199,85">
                         <Image Source="{Binding PlaySongPictureSource}"/>
                     </Button>
-                    <Button BorderThickness="0" Width="80" Height="80" Name="NextButton" Margin="320,368,33,88">
+                    <Button BorderThickness="0" Width="80" Height="80" Name="NextButton" Margin="328,371,50,85">
                         <Image Source="/Assets/MusicButtons/NextSong.png"/>
                     </Button>
-                    <Button BorderThickness="0" Width="80" Height="80" Name="ShuffleButton" Margin="98,456,241,0">
+                    <Button BorderThickness="0" Width="80" Height="80" Name="ShuffleButton" Margin="112,456,241,0">
                         <Image Source="{Binding ShuffleSongPictureSource}"/>
                     </Button>
-                    <Button BorderThickness="0" Width="80" Height="80" Name="RepeatButton" Margin="246,456,97,0">
+                    <Button BorderThickness="0" Width="80" Height="80" Name="RepeatButton" Margin="256,456,97,0">
                         <Image Source="{Binding RepeatSongPictureSource}"/>
                     </Button>
                 </Grid>
             </phone:PivotItem>
 
             <!--Pivot item one-->
-            <phone:PivotItem Header="songs" Margin="12,30,12,65">
+            <phone:PivotItem Header="songs" Margin="12,30,12,2">
                 <!--Double line list with text wrapping-->
-                <phone:LongListSelector Margin="0,0,-12,0" 
-                                        ItemsSource="{Binding Songs}" 
-                                        ItemTemplate="{StaticResource songDisplayTemplate}" 
-                                        Tap="LongListSelectorSongs_Tap" 
-                                        Tag="{Binding Songs}">
-                </phone:LongListSelector>         
+                <phone:LongListSelector Name="SongLLS"
+                                        Margin="0,0,-12,0"
+                                        ItemsSource="{Binding GroupedSongList}"
+                                        GroupHeaderTemplate="{StaticResource NameGroupHeaderTemplate}"
+                                        JumpListStyle="{StaticResource NameJumpListStyle}"
+                                        ItemTemplate="{StaticResource songDisplayTemplate}"
+                                        Tag="{Binding Songs}"
+                                        Background="Transparent"
+                                        IsGroupingEnabled="True"
+                                        HideEmptyGroups="True"
+                                        LayoutMode="List">
+                                        
+                </phone:LongListSelector>
             </phone:PivotItem>
 
             <!--Pivot item two-->
@@ -122,7 +171,7 @@
                                         Tag="{Binding }">
                                 <Image Source="{Binding AlbumArt}" Width="150"></Image>
                                 <StackPanel Margin="0,0,0,17">
-                                    <TextBlock Text="{Binding AlbumName}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="36"/>
+                                    <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="36"/>
                                     <TextBlock Text="{Binding ArtistName}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>
                                 </StackPanel>
                             </StackPanel>
@@ -137,7 +186,7 @@
                     <Button Name="NewPlaylistButton" Content="New" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" FontSize="24" Height="70" FontWeight="Bold"/>
                     
                     <!--Double line list no text wrapping-->
-                    <phone:LongListSelector Margin="0,75,-12,0" ItemsSource="{Binding Playlists}">
+                    <phone:LongListSelector Margin="0,75,-12,0" ItemsSource="{Binding Playlists}" >
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Margin="0,0,0,17">
@@ -150,7 +199,6 @@
             </phone:PivotItem>
         </phone:Pivot>
         
-
         <!--Uncomment to see an alignment grid to help ensure your controls are
             aligned on common boundaries.  The image has a top margin of -32px to
             account for the System Tray. Set this to 0 (or remove the margin altogether)

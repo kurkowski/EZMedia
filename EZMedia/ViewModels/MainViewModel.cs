@@ -33,6 +33,12 @@ namespace EZMedia.ViewModels
             get { return _Songs.AsReadOnly();  }
         }
 
+        private List<StringKeyGroup<IMediaInfo>> _GroupedSongList;
+        public List<StringKeyGroup<IMediaInfo>> GroupedSongList
+        {
+            get { return _GroupedSongList; }
+        }
+
         private List<AlbumInfo> _Albums;
         public ReadOnlyCollection<AlbumInfo> Albums 
         {
@@ -77,64 +83,25 @@ namespace EZMedia.ViewModels
         {
             foreach (Song song in _library.Songs)
             {
-                _Songs.Add(createSongInfoFromSong(song));
+                _Songs.Add(new SongInfo(song));
             }
 
             foreach (Album album in _library.Albums)
             {
-                _Albums.Add(createAlbumInfoFromAlbum(album));
+                _Albums.Add(new AlbumInfo(album));
             }
 
             foreach (Artist artist in _library.Artists)
             {
-                _Artists.Add(createArtistInfoFromArtist(artist));
+                _Artists.Add(new ArtistInfo(artist));
             }
+
+            _GroupedSongList = StringKeyGroup<IMediaInfo>.CreateGroups(_Songs);
 
             this.IsDataLoaded = true;
         }
 
-        private SongInfo createSongInfoFromSong(Song song)
-        {
-            SongInfo si = new SongInfo(
-                song.Artist.Name,
-                song.Album.Name,
-                song.Name,
-                song.Duration,
-                song.TrackNumber);
-            return si;
-        }
-
-        private AlbumInfo createAlbumInfoFromAlbum(Album album)
-        {
-            List<SongInfo> albumSongs = new List<SongInfo>();
-            foreach (Song song in album.Songs)
-            {
-                albumSongs.Add(createSongInfoFromSong(song));
-            }
-
-            if (album.HasArt)
-            {
-                BitmapImage image = new BitmapImage();
-                Stream stream = album.GetAlbumArt();
-                image.SetSource(stream);
-                return new AlbumInfo(album.Artist.Name, album.Name, albumSongs.AsReadOnly(), image);
-            }
-            else
-            {
-               BitmapImage image = new BitmapImage(new Uri("/Assets/NoAlbumArt.png", UriKind.Relative));
-               return new AlbumInfo(album.Artist.Name, album.Name, albumSongs.AsReadOnly(), image);
-            }
-        }
-
-        private ArtistInfo createArtistInfoFromArtist(Artist artist)
-        {
-            List<AlbumInfo> artistAlbums = new List<AlbumInfo>();
-            foreach(Album album in artist.Albums)
-            {
-                artistAlbums.Add(createAlbumInfoFromAlbum(album));
-            }
-            return new ArtistInfo(artist.Name, artistAlbums.AsReadOnly());
-        }
+        
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(String propertyName)

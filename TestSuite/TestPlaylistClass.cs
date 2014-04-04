@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Media.PhoneExtensions;
+using System.IO.IsolatedStorage;
 
 namespace TestSuite
 {
@@ -51,6 +52,38 @@ namespace TestSuite
             //Playlist names can only be 25 characters long
             play = new EZPlaylist("YUPYUPYUPYUPYUPYUPYUPYUPYUP");
             Assert.IsTrue(play.Name == "YUPYUPYUPYUPYUPYUPYUPYUPY");
+        }
+
+        [TestMethod]
+        public void TestRenamingPlaylist()
+        {
+            EZPlaylist play = new EZPlaylist("YUP!");
+            Assert.IsTrue(play.Name == "YUP!");
+            play.SavePlaylist();
+
+            //checks that there is a file in memory that corresponds to the Playlist named YUP!
+            play.ReadFromFile("YUP!");
+            Assert.IsTrue(play.Name == "YUP!");
+            
+            //renamed playlist to NOPE!
+            play.RenamePlaylist("NOPE!");
+            Assert.IsTrue(play.Name == "NOPE!");
+
+            //checking to see if there is a file called YUP!. If there is, the playlist name will be changed
+            //since there is not a file named YUP!, the playlist is not named "YUP!"
+            play.ReadFromFile("YUP!");
+            Assert.IsFalse(play.Name == "YUP!");
+            Assert.IsTrue(play.Name == "NOPE!");
+
+            //renamed playlist to NOPE since * cannot be used in a playlist name
+            play.RenamePlaylist("NOPE*");
+            Assert.IsTrue(play.Name == "NOPE");
+
+            play.ReadFromFile("YUP!");
+            Assert.IsFalse(play.Name == "YUP!");
+            Assert.IsTrue(play.Name == "NOPE");
+
+            play.DeletePlaylist();
         }
 
         [TestMethod]
@@ -153,6 +186,7 @@ namespace TestSuite
                 Assert.IsTrue(playlist.Contains(si));
                 Assert.IsTrue(playlist.Count == 1);
                 Assert.IsTrue(playlist.Name == "My Awesome Playlist");
+                playlist.DeletePlaylist();
             }
             else
             {
@@ -186,6 +220,7 @@ namespace TestSuite
                 }
                 Assert.IsTrue(playlist.Count == SIlist.Count);
                 Assert.IsTrue(playlist.Name == "My Awesome Playlist");
+                playlist.DeletePlaylist();
             }
             else
             {
@@ -218,6 +253,7 @@ namespace TestSuite
                 }
                 Assert.IsTrue(playlist.Count == SIlist.Count);
                 Assert.IsTrue(playlist.Name == "My Awesome Playlist");
+                playlist.DeletePlaylist();
             }
             else
             {
@@ -230,9 +266,6 @@ namespace TestSuite
         {
             EZPlaylist playlist = new EZPlaylist("YUP");
             playlist.SavePlaylist(); //creates "YUP.xml"
-            playlist.Clear();
-
-            
 
             playlist.ReadFromFile("YUP"); //reading from "YUP.xml" confirming that it exists
             playlist.DeletePlaylist();
@@ -240,6 +273,38 @@ namespace TestSuite
             playlist = new EZPlaylist("NOPE");
             playlist.ReadFromFile("YUP"); //If "YUP" exists, playlist should be named "YUP"
             Assert.IsTrue(playlist.Name == "NOPE"); //Since YUP does not exist, playlist's name is still NOPE
+        }
+
+        [TestMethod]
+        public void TestSongEqualityToSongInfo()
+        {
+            MediaLibrary library = new MediaLibrary();
+            if (library.Songs.Count > 0)
+            {
+                Song song = library.Songs[0];
+                SongInfo si = new SongInfo(song.Artist.Name, song.Album.Name, song.Name, song.Duration, song.TrackNumber);
+                Assert.IsTrue(si.CheckIfEqualToSong(song));
+            }
+            else
+            {
+                Assert.Fail("Can't test adding a song because there are no songs to add.");
+            }
+        }
+
+        [TestMethod]
+        public void TestAlbumEqualityToAlbumInfo()
+        {
+            MediaLibrary library = new MediaLibrary();
+            if (library.Songs.Count > 0)
+            {
+                Album album = library.Albums[0];
+                AlbumInfo albumInfo = new AlbumInfo(album);
+                Assert.IsTrue(albumInfo.CheckIfEqualToAlbum(album));
+            }
+            else
+            {
+                Assert.Fail("Can't test adding a song because there are no songs to add.");
+            }
         }
 
         [TestMethod]

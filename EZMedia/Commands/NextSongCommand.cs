@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Media;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,16 +10,21 @@ namespace EZMedia.Commands
 {
     public class NextSongCommand : ICommand
     {
+        public NextSongCommand()
+        {
+
+        }
+
         public bool CanExecute(object parameter)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public event EventHandler CanExecuteChanged;
 
         public void Execute(object parameter)
         {
-            throw new NotImplementedException();
+            MediaPlayer.Stop();
         }
     }
 }

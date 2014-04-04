@@ -23,12 +23,10 @@ namespace EZMedia
         public MainPage()
         {
             InitializeComponent();
-
             DataContext = App.ViewModel;
             NowPlayingPivot.DataContext = App.ViewModel.SongPlayingVM;
-
             // Sample code to localize the ApplicationBar
-            //BuildLocalizedApplicationBar();
+            BuildApplicationBar();
         }
 
         // Load data for the ViewModel Items
@@ -39,8 +37,6 @@ namespace EZMedia
                 App.ViewModel.LoadData();
             }
         }
-
-        
 
         private void LongListSelectorSongs_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
@@ -70,20 +66,38 @@ namespace EZMedia
             NavigationService.Navigate(new Uri("/Views/SongsInAlbum.xaml", UriKind.Relative));
         }
 
-        // Sample code for building a localized ApplicationBar
-        //private void BuildLocalizedApplicationBar()
-        //{
-        //    // Set the page's ApplicationBar to a new instance of ApplicationBar.
-        //    ApplicationBar = new ApplicationBar();
+        private void EZMediaPivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (((Pivot)sender).SelectedIndex)
+            {
+                case 1:
+                    ApplicationBar.IsVisible = true;
+                    break;
+                default:
+                    ApplicationBar.IsVisible = false;
+                    break;
+            }
+        }
 
-        //    // Create a new button and set the text value to the localized string from AppResources.
-        //    ApplicationBarIconButton appBarButton = new ApplicationBarIconButton(new Uri("/Assets/AppBar/appbar.add.rest.png", UriKind.Relative));
-        //    appBarButton.Text = AppResources.AppBarButtonText;
-        //    ApplicationBar.Buttons.Add(appBarButton);
+        private void ApplicationBarIconButton_Click(object sender, EventArgs e)
+        {
 
-        //    // Create a new menu item with the localized string from AppResources.
-        //    ApplicationBarMenuItem appBarMenuItem = new ApplicationBarMenuItem(AppResources.AppBarMenuItemText);
-        //    ApplicationBar.MenuItems.Add(appBarMenuItem);
-        //}
+        }
+
+        //Sample code for building a localized ApplicationBar
+        private void BuildApplicationBar()
+        {
+            // Set the page's ApplicationBar to a new instance of ApplicationBar.
+            ApplicationBar = new ApplicationBar();
+
+            // Create a new button and set the text value to the localized string from AppResources.
+            ApplicationBarIconButton appBarButton = new ApplicationBarIconButton(new Uri("/Assets/AppBar/appbar.add.rest.png", UriKind.Relative));
+            appBarButton.Text = AppResources.AppBarButtonText;
+            ApplicationBar.Buttons.Add(appBarButton);
+
+            // Create a new menu item with the localized string from AppResources.
+            ApplicationBarMenuItem appBarMenuItem = new ApplicationBarMenuItem(AppResources.AppBarMenuItemText);
+            ApplicationBar.MenuItems.Add(appBarMenuItem);
+        }
     }
 }

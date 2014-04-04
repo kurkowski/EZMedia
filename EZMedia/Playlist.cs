@@ -7,12 +7,20 @@ using System.Threading.Tasks;
 using System.IO.IsolatedStorage;
 using System.Xml.Serialization;
 using System.Windows.Media.Imaging;
+using Microsoft.Xna.Framework.Media;
+using System.IO;
 
 namespace EZMedia
 {
-    public class SongInfo :IEquatable<SongInfo>
+    public interface IMediaInfo
     {
-        public string Artist
+        string Name { get; set; }
+        string ArtistName { get; set; }
+    }
+
+    public class SongInfo : IMediaInfo, IEquatable<SongInfo>
+    {
+        public string ArtistName
         {
             get;
             set;
@@ -22,12 +30,7 @@ namespace EZMedia
             get;
             set;
         }
-        public string Name
-        {
-            get;
-            set;
-        }
-
+        public string Name { get; set; }
         private TimeSpan _duration;
 
         [XmlIgnore]
@@ -62,11 +65,32 @@ namespace EZMedia
             TimeSpan duration,
             int trackNumber)
         {
-            Artist = artist;
+            ArtistName = artist;
             Album = album;
             Name = name;
             Duration = duration;
             TrackNumber = trackNumber;
+        }
+
+        public SongInfo(Song song)
+        {
+            ArtistName = song.Artist.Name;
+            Album = song.Album.Name;
+            Name = song.Name;
+            Duration = song.Duration;
+            TrackNumber = song.TrackNumber;
+        }
+
+        public bool CheckIfEqualToSong(Song song)
+        {
+            if (song.Album.Name == Album &&
+                song.Artist.Name == ArtistName &&
+                song.Duration == Duration &&
+                song.Name == Name &&
+                song.TrackNumber == TrackNumber)
+                return true;
+            else
+                return false;
         }
 
         public override bool Equals(object obj)
@@ -83,16 +107,16 @@ namespace EZMedia
             }
             else
             {
-                if (Artist == si.Artist && Album == si.Album && Name == si.Name && Duration == si.Duration && TrackNumber == si.TrackNumber)
+                if (ArtistName == si.ArtistName && Album == si.Album && Name == si.Name && Duration == si.Duration && TrackNumber == si.TrackNumber)
                     return true;
                 else
                     return false;
             }
         }
 
-        public bool Equals(SongInfo SongInfo)
+        public bool Equals(SongInfo songInfo)
         {
-            return Equals((object)SongInfo);
+            return Equals((object)songInfo);
         }
 
         public override int GetHashCode()
@@ -102,38 +126,223 @@ namespace EZMedia
             hash *= 23 + TrackNumber.GetHashCode();
             hash *= 23 + Duration.GetHashCode();
             hash *= 23 + Album.GetHashCode();
-            hash *= 23 + Artist.GetHashCode();
+            hash *= 23 + ArtistName.GetHashCode();
 
             return hash;
         }
-
     }
 
-    public class AlbumInfo
+    public class AlbumInfo : IMediaInfo, IEquatable<AlbumInfo>
     {
         public string ArtistName { get; set; }
-        public string AlbumName { get; set; }
+        public string Name { get; set; }
         public ReadOnlyCollection<SongInfo> Songs { get; private set; }
-        public BitmapImage AlbumArt { get; set; }
 
-        public AlbumInfo(string artistName, string albumName, ReadOnlyCollection<SongInfo> songs, BitmapImage image)
+        public AlbumInfo(string artistName, string albumName, ReadOnlyCollection<SongInfo> songs)
         {
             ArtistName = artistName;
-            AlbumName = albumName;
+            Name = albumName;
             Songs = songs;
-            AlbumArt = image;
+        }
+
+        public AlbumInfo(Album album)
+        {
+            ArtistName = album.Artist.Name;
+            Name = album.Name;
+
+            List<SongInfo> albumSongs = new List<SongInfo>();
+            foreach (Song song in album.Songs)
+            {
+                albumSongs.Add(new SongInfo(song));
+            }
+            Songs = albumSongs.AsReadOnly();
+        }
+
+        public bool CheckIfEqualToAlbum(Album album)
+        {
+            if (album.Name == Name &&
+                album.Artist.Name == ArtistName &&
+                checkIfSongsAreSame(album.Songs))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            AlbumInfo ai = obj as AlbumInfo;
+            if ((object)ai == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (ArtistName == ai.ArtistName && Name == ai.Name && checkIfSongsAreSame(ai.Songs))
+                    return true;
+                else
+                    return false;
+            }
+        }
+
+        private bool checkIfSongsAreSame(SongCollection songs)
+        {
+            int i = 0;
+            foreach (Song song in songs)
+            {
+                if (!Songs[i].CheckIfEqualToSong(song))
+                {
+                    return false;
+                }
+                i++;
+            }
+            return true;
+        }
+
+        private bool checkIfSongsAreSame(ReadOnlyCollection<SongInfo> songs)
+        {
+            if (Songs == null && songs == null)
+                return true;
+            if ((songs == null && Songs != null) || (songs != null && Songs == null))
+                return false;
+            if (Songs.Count != songs.Count)
+                return false;
+            int index = 0;
+            foreach (SongInfo si in Songs)
+            {
+                if (si != songs[index])
+                {
+                    return false;
+                }
+                index++;
+            }
+            return true;
+        }
+
+        public bool Equals(AlbumInfo albumInfo)
+        {
+            return Equals((object)albumInfo);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 23 + Name.GetHashCode();
+            hash *= 23 + ArtistName.GetHashCode();
+            hash *= 23 + Songs.GetHashCode();
+
+            return hash;
         }
     }
 
-    public class ArtistInfo
+    public class ArtistInfo : IMediaInfo, IEquatable<ArtistInfo>
     {
+        public string Name { get; set; }
         public string ArtistName { get; set; }
         public ReadOnlyCollection<AlbumInfo> Albums { get; private set; }
+        public ReadOnlyCollection<SongInfo> Songs { get; private set; }
 
         public ArtistInfo(string artistName, ReadOnlyCollection<AlbumInfo> albums)
         {
+            Name = artistName;
             ArtistName = artistName;
             Albums = albums;
+        }
+
+        public ArtistInfo(Artist artist)
+        {
+
+        }
+
+        public bool CheckIfEqualToArtist(Artist artist)
+        {
+            if (artist.Name == Name &&
+            checkIfAlbumsAreSame(artist.Albums))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private bool checkIfAlbumsAreSame(AlbumCollection albums)
+        {
+            int i = 0;
+            foreach (Album album in albums)
+            {
+                if (!Albums[i].CheckIfEqualToAlbum(album))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            ArtistInfo ai = obj as ArtistInfo;
+            if ((object)ai == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (Name == ai.Name && checkIfAlbumsAreSame(ai.Albums))
+                    return true;
+                else
+                    return false;
+            }
+        }
+
+
+
+        private bool checkIfAlbumsAreSame(ReadOnlyCollection<AlbumInfo> albums)
+        {
+            if (Albums == null && albums == null)
+                return true;
+            if ((albums == null && Albums != null) || (albums != null && Albums == null))
+                return false;
+            if (Albums.Count != albums.Count)
+                return false;
+            int index = 0;
+            foreach (AlbumInfo ai in Albums)
+            {
+                if (ai != albums[index])
+                {
+                    return false;
+                }
+                index++;
+            }
+            return true;
+        }
+
+        public bool Equals(ArtistInfo artistInfo)
+        {
+            return Equals((object)artistInfo);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash *= 23 + Name.GetHashCode();
+            hash *= 23 + Albums.GetHashCode();
+
+            return hash;
         }
     }
 
@@ -149,7 +358,6 @@ namespace EZMedia
         public string Name
         {
             get { return _name; }
-            set { _name = value; }
         }
 
         public ReadOnlyCollection<SongInfo> Songs
@@ -168,13 +376,13 @@ namespace EZMedia
         public EZPlaylist()
         {
             _playlist = new List<SongInfo>();
-            Name = "";
+            _name = "";
         }
 
         public EZPlaylist(string name)
         {
             _playlist = new List<SongInfo>();
-            Name = sanitizeString(name);
+            _name = sanitizeString(name);
         }
 
         public void CopyTo(SongInfo[] array, int index)
@@ -240,7 +448,7 @@ namespace EZMedia
         {
             using (IsolatedStorageFile myIsolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                using (IsolatedStorageFileStream stream = myIsolatedStorage.OpenFile(Name + ".xml", System.IO.FileMode.Create))
+                using (IsolatedStorageFileStream stream = myIsolatedStorage.OpenFile("EZ" + Name + ".xml", System.IO.FileMode.Create))
                 {
                     try
                     {
@@ -252,6 +460,11 @@ namespace EZMedia
             }
         }
 
+        /// <summary>
+        /// This fills the object with the songs from the playlist called playlistName from disk. Any
+        /// songs added to the playlist before this method is called will be removed.
+        /// </summary>
+        /// <param name="playlistName">The name of the playlist that you want to get the Song info from.</param>
         public void ReadFromFile(string playlistName)
         {
             _playlist.Clear();
@@ -259,12 +472,30 @@ namespace EZMedia
             {
                 using (IsolatedStorageFile myIsolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    using (IsolatedStorageFileStream stream = myIsolatedStorage.OpenFile(playlistName + ".xml", System.IO.FileMode.Open))
+                    using (IsolatedStorageFileStream stream = myIsolatedStorage.OpenFile("EZ" + playlistName + ".xml", System.IO.FileMode.Open))
                     {
                         XmlSerializer serializer = new XmlSerializer(typeof(List<SongInfo>));
                         _playlist = (List<SongInfo>)serializer.Deserialize(stream);
-                        Name = playlistName;
+                        _name = playlistName;
                     }
+                }
+            }
+            catch (Exception e)
+            {
+                string s = e.Message;
+                e.ToString();
+            }
+        }
+
+        public void RenamePlaylist(string newPlaylistName)
+        {
+            try
+            {
+                using (IsolatedStorageFile myIsolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    string oldName = Name;
+                    _name = sanitizeString(newPlaylistName);
+                    myIsolatedStorage.MoveFile("EZ" + oldName + ".xml", "EZ" + _name + ".xml");
                 }
             }
             catch (Exception e)
@@ -294,23 +525,23 @@ namespace EZMedia
         }
 
         /// <summary>
-        /// Deletes the playlist in memory
+        /// Deletes the playlist in memory. Does NOT delete playlist on disk. Call DeletePlaylist() to delete
+        /// playlist on disk.
         /// </summary>
         public void Clear()
         {
             _playlist.Clear();
         }
 
-        /// <summary>
-        /// Deletes the stored playlist file
-        /// </summary>
+        //Deletes the playlist in memory and on disk.
         public void DeletePlaylist()
         {
             using (IsolatedStorageFile myIsolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 try
                 {
-                    myIsolatedStorage.DeleteFile(Name + ".xml");
+                    myIsolatedStorage.DeleteFile("EZ" + Name + ".xml");
+                    _playlist.Clear();
                 }
                 catch { }
             }

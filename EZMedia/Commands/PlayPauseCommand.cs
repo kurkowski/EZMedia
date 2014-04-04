@@ -9,31 +9,21 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using EZMedia.ViewModels;
 using System.Windows.Media.Imaging;
+using Microsoft.Phone.BackgroundAudio;
 
 namespace EZMedia.Commands
 {
     public class PlayPauseCommand : ICommand
     {
-        private Song song;
-        private SongPlayingViewModel songPlayingVM;
-        private bool canExecuteVariable;
-
-        public PlayPauseCommand(Song song, SongPlayingViewModel songPlayingVM)
+        public PlayPauseCommand()
         {
-            this.song = song;
-            this.songPlayingVM = songPlayingVM;
-            
             FrameworkDispatcher.Update();
-            if (song != null)
-            {
-                canExecuteVariable = true;
-                MediaPlayer.Play(song);
-            }
+            //MediaPlayer.Play();
         }
 
         public bool CanExecute(object parameter)
         {
-            return canExecuteVariable;
+            return true;
         }
 
         public event EventHandler CanExecuteChanged;
@@ -42,29 +32,12 @@ namespace EZMedia.Commands
         {
             if (MediaPlayer.State == MediaState.Paused)
             {
-                canExecuteVariable = true;
                 MediaPlayer.Resume();
-                songPlayingVM.PlaySongPictureSource = "/Assets/MusicButtons/PauseButton.png";
+                
             }
             else if (MediaPlayer.State == MediaState.Playing)
             {
-                canExecuteVariable = true;
                 MediaPlayer.Pause();
-                songPlayingVM.PlaySongPictureSource = "/Assets/MusicButtons/PlayButton.png";
-            }
-            else
-            {
-                if (song != null)
-                {
-                    canExecuteVariable = true;
-                    MediaPlayer.Play(song);
-                    songPlayingVM.PlaySongPictureSource = "/Assets/MusicButtons/PauseButton.png";
-                }
-                else
-                {
-                    canExecuteVariable = false;
-                    songPlayingVM.PlaySongPictureSource = "/Assets/MusicButtons/PlayButton.png";
-                }
             }
         }
     }
