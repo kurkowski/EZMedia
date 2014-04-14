@@ -21,14 +21,27 @@ namespace EZMedia.ViewModels
 
         public SongPlayingViewModel()
         {
+            //initialize fields
             _media_player = new EZMediaPlayer();
             _library = new MediaLibrary();
+            _songs = new List<SongInfo>();
+            _timer = new DispatcherTimer();
+            _timer.Interval = new TimeSpan(0, 0, 1);
+
+            //subscribe to events
+            _timer.Tick += _timer_Tick;
             _media_player.CurrentMediaChanged += _media_player_CurrentMediaChanged;
             _media_player.MediaStateChanged += _media_player_MediaStateChanged;
 
+            //initialize properties
+            PlayCommand = new PlayPauseCommand(_media_player);
+
             ShuffleSongPictureSource = "/Assets/MusicButtons/ShuffleSongsNotClicked.png";
             RepeatSongPictureSource = "/Assets/MusicButtons/RepeatSongsNotClicked.png";
+            PlaySongPictureSource = "/Assets/MusicButtons/PlayButton.png";
         }
+
+        
 
         private MediaLibrary _library;
         private EZMediaPlayer _media_player;
@@ -119,6 +132,23 @@ namespace EZMedia.ViewModels
             private set
             {
                 _currentSongInfo = value;
+                NotifyPropertyChanged("CurrentSongInfo");
+            }
+        }
+        private DispatcherTimer _timer;
+        private TimeSpan _currentTimeOfSong;
+
+        private string _songTime;
+        public string SongTime
+        {
+            get
+            {
+                return _songTime;
+            }
+            private set
+            {
+                _songTime = value + " / " + CurrentSongInfo.Duration.ToString(@"hh\:mm\:ss");
+                NotifyPropertyChanged("SongTime");
             }
         }
 
@@ -145,15 +175,47 @@ namespace EZMedia.ViewModels
         /// "songsToPlay". If it's null, no song will play.</param>
         public void UpdateNowPlayingSong(ReadOnlyCollection<SongInfo> songsToPlay, SongInfo song)
         {
-            CurrentSongInfo = song;
             Songs = songsToPlay;
+            updateSongInfo(song);
+            _media_player.Play(songsToPlay, song);
+        }
+
+        public void UpdateNowPlayingSong(AlbumInfo album, SongInfo song)
+        {
+            Songs = album.Songs;
+            updateSongInfo(song);
+            _media_player.Play(album, song);
+        }
+
+        public void UpdateNowPlayingSong(ArtistInfo artist, SongInfo song)
+        {
+            Songs = artist.Songs;
+            updateSongInfo(song);
+            _media_player.Play(artist, song);
+        }
+
+        public void UpdateNowPlayingSong(EZPlaylist playlist, SongInfo song)
+        {
+            Songs = playlist.Songs;
+            updateSongInfo(song);
+            _media_player.Play(playlist, song);
+        }
+
+        /// <summary>
+        /// Call this when you change the current song to the next or previous song in the collection.
+        /// </summary>
+        /// <param name="song"></param>
+        private void updateSongInfo(SongInfo song)
+        {
+            CurrentSongInfo = song;
             AlbumArt = findAlbumArt(song);
+            _currentTimeOfSong = TimeSpan.FromSeconds(0);
         }
 
         private BitmapImage findAlbumArt(SongInfo song)
         {
             BitmapImage image;
-            if (song != null)
+            if (song != null && _library.Albums.Count != 0)
             {
                 Album album = _library.Albums.Where(x => x.Name == song.Album).ToList()[0];
                 if (album.HasArt)
@@ -173,16 +235,6 @@ namespace EZMedia.ViewModels
             return image;
         }
 
-        private void _media_player_MediaStateChanged(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void _media_player_CurrentMediaChanged(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(String propertyName)
         {
@@ -192,6 +244,32 @@ namespace EZMedia.ViewModels
                 handler(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        private void _media_player_CurrentMediaChanged(object sender, MediaChangedEventArgs e)
+        {
+            updateSongInfo(e.SongNowPlaying);
+            _timer.Start();
             
+        }
+
+        private void _media_player_MediaStateChanged(object sender, MediaStateEventArgs e)
+        {
+            if (e.SongMediaState == MediaState.Playing)
+            {
+                _timer.Start();
+                PlaySongPictureSource = "/Assets/MusicButtons/PauseButton.png";
+            }
+            else
+            {
+                _timer.Stop();
+                PlaySongPictureSource = "/Assets/MusicButtons/PlayButton.png";
+            }
+        }
+
+        void _timer_Tick(object sender, EventArgs e)
+        {
+            _currentTimeOfSong = _currentTimeOfSong + TimeSpan.FromSeconds(1);
+            SongTime = _currentTimeOfSong.ToString();
+        }
     }
 }

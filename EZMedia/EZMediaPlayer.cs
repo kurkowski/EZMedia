@@ -17,6 +17,8 @@ namespace EZMedia
     public class EZMediaPlayer
     {
         private MediaLibrary _library;
+        private bool _isPlaylist;
+        private bool _newSongListPlaying;
 
         private List<SongInfo> _songs;
         public ReadOnlyCollection<SongInfo> Songs
@@ -46,6 +48,7 @@ namespace EZMedia
                 _currentSongInfo = value;
             }
         }
+        private Song _currentSong;
 
         public EZMediaPlayer()
         {
@@ -56,6 +59,85 @@ namespace EZMedia
             dt.Start();
 
             _library = new MediaLibrary();
+            _isPlaylist = false;
+            IsShuffled = false;
+            IsRepeating = false;
+            IsRepeatingOne = false;
+            _songs = new List<SongInfo>();
+
+            MediaPlayer.ActiveSongChanged += MediaPlayer_ActiveSongChanged;
+            MediaPlayer.MediaStateChanged += MediaPlayer_MediaStateChanged;
+        }
+
+        private bool _isShuffled;
+        public bool IsShuffled
+        {
+            get
+            {
+                return _isShuffled;
+            }
+            set
+            {
+                if (!_isPlaylist)
+                {
+                    MediaPlayer.IsShuffled = value;
+                }
+                _isShuffled = value;
+            }
+        }
+
+        private bool _isRepeating;
+        public bool IsRepeating
+        {
+            get
+            {
+                return _isRepeating;
+            }
+            set
+            {
+                if (!_isPlaylist)
+                {
+                    MediaPlayer.IsRepeating = value;
+                }
+                _isRepeating = value;
+            }
+        }
+
+        private bool _isRepeatingOne;
+        public bool IsRepeatingOne
+        {
+            get
+            {
+                return _isRepeatingOne;
+            }
+            set
+            {
+                _isRepeatingOne = value;
+            }
+        }
+
+        private int _index;
+        public int Index
+        {
+            get
+            {
+                return _index;
+            }
+            private set
+            {
+                if (value > Songs.Count)
+                {
+                    _index = 0;
+                }
+                else if (value < 0)
+                {
+                    _index = Songs.Count - 1;
+                }
+                else
+                {
+                    _index = value;
+                }
+            }
         }
 
         /// <summary>
@@ -64,17 +146,28 @@ namespace EZMedia
         /// <param name="playlist"></param>
         public void Play(EZPlaylist playlist, SongInfo songToPlay)
         {
-
+            _isPlaylist = true;
+            _newSongListPlaying = true;
+            _currentSong = findSong(songToPlay);
+            Songs = playlist.Songs;
+            Index = findIndexOfSongInCollection(songToPlay);
+            FrameworkDispatcher.Update();
+            MediaPlayer.Play(_currentSong);
         }
 
         /// <summary>
-        /// Plays a collection of songs (eg. all the songs in the library) starting with songToPlay
+        /// Plays a collection of songs that represent all the songs in the library.
         /// </summary>
         /// <param name="songs"></param>
         /// <param name="songToPlay"></param>
         public void Play(ReadOnlyCollection<SongInfo> songs, SongInfo songToPlay)
         {
-            
+            _isPlaylist = false;
+            _newSongListPlaying = true;
+            Songs = songs;
+            Index = findIndexOfSongInCollection(songToPlay);
+            FrameworkDispatcher.Update();
+            MediaPlayer.Play(_library.Songs, Index);
         }
 
         /// <summary>
@@ -84,7 +177,13 @@ namespace EZMedia
         /// <param name="songToPlay"></param>
         public void Play(AlbumInfo album, SongInfo songToPlay)
         {
-            
+            _isPlaylist = false;
+            _newSongListPlaying = true;
+            Songs = album.Songs;
+            Index = findIndexOfSongInCollection(songToPlay);
+            Album albumToPlay = findAlbum(album);
+            FrameworkDispatcher.Update();
+            MediaPlayer.Play(albumToPlay.Songs, Index);
         }
 
         /// <summary>
@@ -94,13 +193,24 @@ namespace EZMedia
         /// <param name="songToPlay"></param>
         public void Play(ArtistInfo artist, SongInfo songToPlay)
         {
-            
+            _isPlaylist = false;
+            _newSongListPlaying = true;
+            Songs = artist.Songs;
+            Index = findIndexOfSongInCollection(songToPlay);
+            Artist artistToPlay = findArtist(artist);
+            FrameworkDispatcher.Update();
+            MediaPlayer.Play(artistToPlay.Songs, Index);
         }
 
-        private int findIndexOfSongInCollection(ReadOnlyCollection<SongInfo> songs, SongInfo songToPlay)
+        /// <summary>
+        /// Make sure the Songs property is set before using this helper.
+        /// </summary>
+        /// <param name="songToPlay"></param>
+        /// <returns></returns>
+        private int findIndexOfSongInCollection(SongInfo songToPlay)
         {
             int i = 0;
-            foreach (SongInfo si in songs)
+            foreach (SongInfo si in Songs)
             {
                 if (si.Equals(songToPlay))
                 {
@@ -113,28 +223,42 @@ namespace EZMedia
 
         public void Resume()
         {
-            
+            MediaPlayer.Resume();
         }
 
         public void Pause()
         {
-
+            MediaPlayer.Pause();
         }
         public void Next()
         {
-
+            updateCurrentSongInfo(1);
+            
+            if (_isPlaylist)
+            {
+                _currentSong = findSong(CurrentSongInfo);
+                FrameworkDispatcher.Update();
+                MediaPlayer.Play(_currentSong);
+            }
+            else
+            {
+                MediaPlayer.MoveNext();
+            }
         }
         public void Previous()
         {
+            updateCurrentSongInfo(-1);
 
-        }
-        public void Shuffle()
-        {
-
-        }
-        public void Repeat()
-        {
-
+            if (_isPlaylist)
+            {
+                _currentSong = findSong(CurrentSongInfo);
+                FrameworkDispatcher.Update();
+                MediaPlayer.Play(_currentSong);
+            }
+            else
+            {
+                MediaPlayer.MovePrevious();
+            }
         }
 
         private Song findSong(SongInfo songInfo)
@@ -173,7 +297,63 @@ namespace EZMedia
             return null;
         }
 
-        public event EventHandler<EventArgs> CurrentMediaChanged;
-        public event EventHandler<EventArgs> MediaStateChanged;
+        private void updateCurrentSongInfo(int indexOffset)
+        {
+            Index += indexOffset;
+            CurrentSongInfo = Songs[Index];
+        }
+
+        private void MediaPlayer_MediaStateChanged(object sender, EventArgs e)
+        {
+            
+            if (MediaPlayer.State == MediaState.Stopped)
+            {
+                Next();
+            }
+            else
+            {
+                OnMediaStateChanged(new MediaStateEventArgs(CurrentSongInfo, MediaPlayer.State, MediaPlayer.PlayPosition));
+            }
+        }
+
+        /// <summary>
+        /// This function is called when a song is chosen as well as when the song changes in next or previous.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MediaPlayer_ActiveSongChanged(object sender, EventArgs e)
+        {
+            if (_newSongListPlaying)
+            {
+                _newSongListPlaying = false;
+                updateCurrentSongInfo(0);
+            }
+            else if (!_isPlaylist)
+            {
+                updateCurrentSongInfo(1);
+            }
+            OnCurrentMediaChanged(new MediaChangedEventArgs(CurrentSongInfo));
+        }
+
+        public event EventHandler<MediaChangedEventArgs> CurrentMediaChanged;
+        public event EventHandler<MediaStateEventArgs> MediaStateChanged;
+
+        private void OnCurrentMediaChanged(MediaChangedEventArgs e)
+        {
+            EventHandler<MediaChangedEventArgs> handler = CurrentMediaChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        private void OnMediaStateChanged(MediaStateEventArgs e)
+        {
+            EventHandler<MediaStateEventArgs> handler = MediaStateChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
     }
 }

@@ -15,10 +15,10 @@ namespace EZMedia.Commands
 {
     public class PlayPauseCommand : ICommand
     {
-        public PlayPauseCommand()
+        private EZMediaPlayer _mediaPlayer;
+        public PlayPauseCommand(EZMediaPlayer mediaPlayer)
         {
-            FrameworkDispatcher.Update();
-            //MediaPlayer.Play();
+            _mediaPlayer = mediaPlayer;
         }
 
         public bool CanExecute(object parameter)
@@ -30,14 +30,13 @@ namespace EZMedia.Commands
 
         public void Execute(object parameter)
         {
-            if (MediaPlayer.State == MediaState.Paused)
+            if (MediaPlayer.State == MediaState.Playing)
             {
-                MediaPlayer.Resume();
-                
+                _mediaPlayer.Pause();
             }
-            else if (MediaPlayer.State == MediaState.Playing)
+            else
             {
-                MediaPlayer.Pause();
+                _mediaPlayer.Resume();
             }
         }
     }

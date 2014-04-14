@@ -137,6 +137,7 @@ namespace EZMedia
         public string ArtistName { get; set; }
         public string Name { get; set; }
         public ReadOnlyCollection<SongInfo> Songs { get; private set; }
+        public BitmapImage AlbumArt { get; private set; }
 
         public AlbumInfo(string artistName, string albumName, ReadOnlyCollection<SongInfo> songs)
         {
@@ -147,6 +148,7 @@ namespace EZMedia
 
         public AlbumInfo(Album album)
         {
+            
             ArtistName = album.Artist.Name;
             Name = album.Name;
 
@@ -156,6 +158,16 @@ namespace EZMedia
                 albumSongs.Add(new SongInfo(song));
             }
             Songs = albumSongs.AsReadOnly();
+
+            if (album.HasArt)
+            {
+                AlbumArt = new BitmapImage();
+                AlbumArt.SetSource(album.GetAlbumArt());
+            }
+            else
+            {
+                AlbumArt = new BitmapImage(new Uri("/Assets/NoAlbumArt.png", UriKind.Relative));
+            }
         }
 
         public bool CheckIfEqualToAlbum(Album album)
@@ -250,22 +262,39 @@ namespace EZMedia
         public ReadOnlyCollection<AlbumInfo> Albums { get; private set; }
         public ReadOnlyCollection<SongInfo> Songs { get; private set; }
 
-        public ArtistInfo(string artistName, ReadOnlyCollection<AlbumInfo> albums)
-        {
-            Name = artistName;
-            ArtistName = artistName;
-            Albums = albums;
-        }
-
         public ArtistInfo(Artist artist)
         {
+            Name = artist.Name;
+            ArtistName = artist.Name;
+            setAlbums(artist);
+            setSongs(artist);
+        }
 
+        private void setSongs(Artist artist)
+        {
+            List<SongInfo> tempSongs = new List<SongInfo>();
+            foreach (Song song in artist.Songs)
+            {
+                tempSongs.Add(new SongInfo(song));
+            }
+            Songs = tempSongs.AsReadOnly();
+        }
+
+        private void setAlbums(Artist artist)
+        {
+            List<AlbumInfo> tempAlbums = new List<AlbumInfo>();
+            foreach (Album album in artist.Albums)
+            {
+                tempAlbums.Add(new AlbumInfo(album));
+            }
+            Albums = tempAlbums.AsReadOnly();
         }
 
         public bool CheckIfEqualToArtist(Artist artist)
         {
             if (artist.Name == Name &&
-            checkIfAlbumsAreSame(artist.Albums))
+            checkIfAlbumsAreSame(artist.Albums) &&
+            checkIfSongsAreSame(artist.Songs))
             {
                 return true;
             }
@@ -284,6 +313,21 @@ namespace EZMedia
                 {
                     return false;
                 }
+                i++;
+            }
+            return true;
+        }
+
+        private bool checkIfSongsAreSame(SongCollection songs)
+        {
+            int i = 0;
+            foreach (Song song in songs)
+            {
+                if (!Songs[i].CheckIfEqualToSong(song))
+                {
+                    return false;
+                }
+                i++;
             }
             return true;
         }

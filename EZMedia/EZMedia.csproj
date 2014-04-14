@@ -104,6 +104,8 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MediaChangedEventArgs.cs" />
+    <Compile Include="MediaStateEventArgs.cs" />
     <Compile Include="Playlist.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\AppResources.Designer.cs">
@@ -143,9 +145,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EZMedia_2014_02_28_17_24_33.sap" />
-    <None Include="EZMedia_2014_03_12_12_38_11.sap" />
-    <None Include="EZMedia_2014_03_12_12_40_20.sap" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>

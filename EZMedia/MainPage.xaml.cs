@@ -40,8 +40,9 @@ namespace EZMedia
 
         private void LongListSelectorSongs_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            LongListSelector lls = (LongListSelector)sender;
-            ReadOnlyCollection<SongInfo> songs = (ReadOnlyCollection<SongInfo>)lls.Tag;
+            ReadOnlyCollection<SongInfo> songs = (ReadOnlyCollection<SongInfo>)SongLLS.Tag;
+
+            StackPanel sp = (StackPanel)sender;
             TextBlock tb = (TextBlock)e.OriginalSource;
             SongInfo songToPlay = (SongInfo)tb.DataContext;
             EZMediaPivot.SelectedIndex = 0;

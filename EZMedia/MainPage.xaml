@@ -91,22 +91,24 @@
         <phone:Pivot Name="EZMediaPivot" Title="EZMedia" SelectionChanged="EZMediaPivot_SelectionChanged">
             <phone:PivotItem Name="NowPlayingPivot" Header="playing" Margin="12,30,12,5">
                 <Grid x:Name="ContentPanel" Grid.Row="1">
-                    <TextBlock Text="{Binding CurrentSongInfo.Artist}" Margin="7,0,192,541" Style="{StaticResource PhoneTextTitle1Style}" FontSize="32"/>
-                    <TextBlock Text="{Binding CurrentSongInfo.Album}" Margin="0,57,192,484" Style="{StaticResource PhoneTextTitle1Style}" FontSize="24"/>
+                    <TextBlock Text="{Binding CurrentSongInfo.ArtistName}" Margin="7,0,192,541" Style="{StaticResource PhoneTextTitle1Style}" FontSize="32"/>
+                    <TextBlock Text="{Binding CurrentSongInfo.Album}" Margin="7,55,192,486" Style="{StaticResource PhoneTextTitle1Style}" FontSize="24"/>
                     <Image Source="{Binding AlbumArt}" Margin="10,117,199,200"></Image>
-
-                    <phone:LongListSelector  ItemsSource="{Binding Songs}" 
+                    <TextBlock Text="{Binding SongTime}" Margin="269,101,4,444"></TextBlock>
+                    
+                    <ListBox  ItemsSource="{Binding Songs}" 
                                              Name="NowPlayingList" 
-                                             Margin="272,119,10,200">
-                        <phone:LongListSelector.ItemTemplate>
+                                             Margin="272,157,10,200">
+                        <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Opacity="0.0"></Image>
                                     <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="20"/>
                                 </StackPanel>
                             </DataTemplate>
-                        </phone:LongListSelector.ItemTemplate>
-                    </phone:LongListSelector>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    
                     <Button BorderThickness="0" Width="80" Height="80" Name="PrevButton" Margin="40,371,337,85">
                         <Image Source="/Assets/MusicButtons/PreviousSong.png"/>
                     </Button>

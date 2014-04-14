@@ -308,6 +308,22 @@ namespace TestSuite
         }
 
         [TestMethod]
+        public void TestArtistEqualityToArtistInfo()
+        {
+            MediaLibrary library = new MediaLibrary();
+            if (library.Songs.Count > 0)
+            {
+                Artist artist = library.Artists[0];
+                ArtistInfo artistInfo = new ArtistInfo(artist);
+                Assert.IsTrue(artistInfo.CheckIfEqualToArtist(artist));
+            }
+            else
+            {
+                Assert.Fail("Can't test adding a song because there are no songs to add.");
+            }
+        }
+
+        [TestMethod]
         public void TestGettingTwoCopiesOfSameSong()
         {
             EZPlaylist playlist = new EZPlaylist("My Awesome Playlist");
