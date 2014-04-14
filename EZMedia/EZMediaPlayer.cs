@@ -19,6 +19,7 @@ namespace EZMedia
         private MediaLibrary _library;
         private bool _isPlaylist;
         private bool _newSongListPlaying;
+        private DispatcherTimer _timer;
 
         private List<SongInfo> _songs;
         public ReadOnlyCollection<SongInfo> Songs
@@ -64,6 +65,9 @@ namespace EZMedia
             IsRepeating = false;
             IsRepeatingOne = false;
             _songs = new List<SongInfo>();
+            _timer = new DispatcherTimer();
+            _timer.Interval = new TimeSpan(0, 0, 1);
+            _timer.Tick += _timer_Tick;
 
             MediaPlayer.ActiveSongChanged += MediaPlayer_ActiveSongChanged;
             MediaPlayer.MediaStateChanged += MediaPlayer_MediaStateChanged;
@@ -312,23 +316,32 @@ namespace EZMedia
             }
             else
             {
+                if (MediaPlayer.State == MediaState.Paused)
+                {
+                    _timer.Stop();
+                }
+                else
+                {
+                    _timer.Start();
+                }
                 OnMediaStateChanged(new MediaStateEventArgs(CurrentSongInfo, MediaPlayer.State, MediaPlayer.PlayPosition));
             }
         }
 
         /// <summary>
-        /// This function is called when a song is chosen as well as when the song changes in next or previous.
+        /// This function is called when a song is chosen as well as when the song changes to next or previous.
+        /// CurrentSongInfo is updated here.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void MediaPlayer_ActiveSongChanged(object sender, EventArgs e)
         {
-            if (_newSongListPlaying)
+            if (_newSongListPlaying) //for first time playing a song or a new song collection
             {
                 _newSongListPlaying = false;
                 updateCurrentSongInfo(0);
             }
-            else if (!_isPlaylist)
+            else if (!_isPlaylist) //for Songs, Artist, and Albums pivots. 
             {
                 MediaQueue queue = MediaPlayer.Queue;
                 SongInfo song = new SongInfo(queue.ActiveSong);
@@ -340,11 +353,23 @@ namespace EZMedia
                 {
                     updateCurrentSongInfo(1);
                 }
-                
             }
             OnCurrentMediaChanged(new MediaChangedEventArgs(CurrentSongInfo));
+            _timer.Start();
         }
 
+        void _timer_Tick(object sender, EventArgs e)
+        {
+            OnTimerIntervalReached(new MediaStateEventArgs(CurrentSongInfo, MediaPlayer.State, MediaPlayer.PlayPosition));
+        }
+
+        /// <summary>
+        /// This method lets you safely add offsets to the Index when accessing the Songs property.
+        /// Example: Songs.Count = 10. Index = 9; Songs[Index+1] throws an exception. 
+        /// Songs[indexAdd(1)] = Songs[0] which is safe.
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns></returns>
         private int indexAdd(int offset)
         {
             int n = Index + offset;
@@ -355,6 +380,7 @@ namespace EZMedia
 
         public event EventHandler<MediaChangedEventArgs> CurrentMediaChanged;
         public event EventHandler<MediaStateEventArgs> MediaStateChanged;
+        public event EventHandler<MediaStateEventArgs> TimerIntervalReached;
 
         private void OnCurrentMediaChanged(MediaChangedEventArgs e)
         {
@@ -368,6 +394,15 @@ namespace EZMedia
         private void OnMediaStateChanged(MediaStateEventArgs e)
         {
             EventHandler<MediaStateEventArgs> handler = MediaStateChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        private void OnTimerIntervalReached(MediaStateEventArgs e)
+        {
+            EventHandler<MediaStateEventArgs> handler = TimerIntervalReached;
             if (handler != null)
             {
                 handler(this, e);

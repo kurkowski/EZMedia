@@ -25,13 +25,11 @@ namespace EZMedia.ViewModels
             _media_player = new EZMediaPlayer();
             _library = new MediaLibrary();
             _songs = new List<SongInfo>();
-            _timer = new DispatcherTimer();
-            _timer.Interval = new TimeSpan(0, 0, 1);
 
             //subscribe to events
-            _timer.Tick += _timer_Tick;
             _media_player.CurrentMediaChanged += _media_player_CurrentMediaChanged;
             _media_player.MediaStateChanged += _media_player_MediaStateChanged;
+            _media_player.TimerIntervalReached += _media_player_TimerIntervalReached;
 
             //initialize properties
             PlayCommand = new PlayPauseCommand(_media_player);
@@ -40,8 +38,6 @@ namespace EZMedia.ViewModels
             RepeatSongPictureSource = "/Assets/MusicButtons/RepeatSongsNotClicked.png";
             PlaySongPictureSource = "/Assets/MusicButtons/PlayButton.png";
         }
-
-        
 
         private MediaLibrary _library;
         private EZMediaPlayer _media_player;
@@ -135,7 +131,6 @@ namespace EZMedia.ViewModels
                 NotifyPropertyChanged("CurrentSongInfo");
             }
         }
-        private DispatcherTimer _timer;
         private TimeSpan _currentTimeOfSong;
 
         private string _songTime;
@@ -249,7 +244,6 @@ namespace EZMedia.ViewModels
         private void _media_player_CurrentMediaChanged(object sender, MediaChangedEventArgs e)
         {
             updateSongInfo(e.SongNowPlaying);
-            _timer.Start();
             
         }
 
@@ -257,20 +251,17 @@ namespace EZMedia.ViewModels
         {
             if (e.SongMediaState == MediaState.Playing)
             {
-                _timer.Start();
                 PlaySongPictureSource = "/Assets/MusicButtons/PauseButton.png";
             }
             else
             {
-                _timer.Stop();
                 PlaySongPictureSource = "/Assets/MusicButtons/PlayButton.png";
             }
         }
 
-        void _timer_Tick(object sender, EventArgs e)
+        private void _media_player_TimerIntervalReached(object sender, MediaStateEventArgs e)
         {
-            _currentTimeOfSong = _currentTimeOfSong + TimeSpan.FromSeconds(1);
-            SongTime = _currentTimeOfSong.ToString();
+            SongTime = e.PlayPosition.ToString(@"hh\:mm\:ss");
         }
     }
 }
