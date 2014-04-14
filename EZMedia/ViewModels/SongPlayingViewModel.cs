@@ -210,6 +210,7 @@ namespace EZMedia.ViewModels
             CurrentSongInfo = song;
             AlbumArt = findAlbumArt(song);
             _currentTimeOfSong = TimeSpan.FromSeconds(0);
+            SongTime = _currentTimeOfSong.ToString();
         }
 
         private BitmapImage findAlbumArt(SongInfo song)

@@ -125,7 +125,7 @@ namespace EZMedia
             }
             private set
             {
-                if (value > Songs.Count)
+                if (value >= Songs.Count)
                 {
                     _index = 0;
                 }
@@ -330,9 +330,27 @@ namespace EZMedia
             }
             else if (!_isPlaylist)
             {
-                updateCurrentSongInfo(1);
+                MediaQueue queue = MediaPlayer.Queue;
+                SongInfo song = new SongInfo(queue.ActiveSong);
+                if(song.Equals(Songs[indexAdd(-1)]))
+                {
+                    updateCurrentSongInfo(-1);
+                }
+                else if(song.Equals(Songs[indexAdd(1)]))
+                {
+                    updateCurrentSongInfo(1);
+                }
+                
             }
             OnCurrentMediaChanged(new MediaChangedEventArgs(CurrentSongInfo));
+        }
+
+        private int indexAdd(int offset)
+        {
+            int n = Index + offset;
+            int m = Songs.Count;
+
+            return (n % m + m) % m;
         }
 
         public event EventHandler<MediaChangedEventArgs> CurrentMediaChanged;
