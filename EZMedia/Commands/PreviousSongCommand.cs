@@ -4,30 +4,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-using EZMedia.ViewModels;
 
 namespace EZMedia.Commands
 {
     public class PreviousSongCommand : ICommand
     {
-        public PreviousSongCommand(Song song, SongPlayingViewModel SongPlayingVM)
-        {
+        private EZMediaPlayer _mediaPlayer;
 
+        public PreviousSongCommand(EZMediaPlayer mediaPlayer)
+        {
+            _mediaPlayer = mediaPlayer;
         }
 
         public bool CanExecute(object parameter)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public event EventHandler CanExecuteChanged;
 
         public void Execute(object parameter)
         {
-            throw new NotImplementedException();
+            if (_mediaPlayer.Songs != null)
+            {
+                if (_mediaPlayer.Songs.Count > 0)
+                {
+                    _mediaPlayer.Previous();
+                }
+            }
         }
     }
 }

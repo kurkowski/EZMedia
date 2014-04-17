@@ -21,20 +21,34 @@ namespace EZMedia
         private bool _newSongListPlaying;
         private DispatcherTimer _timer;
 
-        private List<SongInfo> _songs;
+        private List<SongInfo> _unshuffledSongs;
+        private ReadOnlyCollection<SongInfo> UnshuffledSongs
+        {
+            get
+            {
+                return _unshuffledSongs.AsReadOnly();
+            }
+            set
+            {
+                if (value != null)
+                {
+                    _unshuffledSongs.Clear();
+                    _unshuffledSongs.AddRange(value.ToList());
+                }
+            }
+        }
+
+        private ReadOnlyCollection<SongInfo> _songs;
         public ReadOnlyCollection<SongInfo> Songs
         {
             get
             {
-                return _songs.AsReadOnly();
+                return _songs;
             }
             private set
             {
-                if (value != null)
-                {
-                    _songs.Clear();
-                    _songs.AddRange(value.ToList());
-                }
+                _songs = value;
+                OnSongOrderChanged(new EventArgs());
             }
         }
         private SongInfo _currentSongInfo;
@@ -51,29 +65,10 @@ namespace EZMedia
         }
         private Song _currentSong;
 
-        public EZMediaPlayer()
-        {
-            // Timer to run the XNA internals (MediaPlayer is from XNA)
-            DispatcherTimer dt = new DispatcherTimer();
-            dt.Interval = TimeSpan.FromMilliseconds(33);
-            dt.Tick += delegate { try { FrameworkDispatcher.Update(); } catch { } };
-            dt.Start();
-
-            _library = new MediaLibrary();
-            _isPlaylist = false;
-            IsShuffled = false;
-            IsRepeating = false;
-            IsRepeatingOne = false;
-            _songs = new List<SongInfo>();
-            _timer = new DispatcherTimer();
-            _timer.Interval = new TimeSpan(0, 0, 1);
-            _timer.Tick += _timer_Tick;
-
-            MediaPlayer.ActiveSongChanged += MediaPlayer_ActiveSongChanged;
-            MediaPlayer.MediaStateChanged += MediaPlayer_MediaStateChanged;
-        }
-
         private bool _isShuffled;
+        /// <summary>
+        /// Off (false) by default.
+        /// </summary>
         public bool IsShuffled
         {
             get
@@ -82,15 +77,16 @@ namespace EZMedia
             }
             set
             {
-                if (!_isPlaylist)
-                {
-                    MediaPlayer.IsShuffled = value;
-                }
+
+                shuffle(value);
                 _isShuffled = value;
             }
         }
 
         private bool _isRepeating;
+        /// <summary>
+        /// Off (false) by default.
+        /// </summary>
         public bool IsRepeating
         {
             get
@@ -104,19 +100,6 @@ namespace EZMedia
                     MediaPlayer.IsRepeating = value;
                 }
                 _isRepeating = value;
-            }
-        }
-
-        private bool _isRepeatingOne;
-        public bool IsRepeatingOne
-        {
-            get
-            {
-                return _isRepeatingOne;
-            }
-            set
-            {
-                _isRepeatingOne = value;
             }
         }
 
@@ -144,6 +127,25 @@ namespace EZMedia
             }
         }
 
+        public EZMediaPlayer()
+        {
+            // Timer to run the XNA internals (MediaPlayer is from XNA)
+            DispatcherTimer dt = new DispatcherTimer();
+            dt.Interval = TimeSpan.FromMilliseconds(33);
+            dt.Tick += delegate { try { FrameworkDispatcher.Update(); } catch { } };
+            dt.Start();
+            
+            _library = new MediaLibrary();
+            _unshuffledSongs = new List<SongInfo>();
+            _isPlaylist = false;
+            _timer = new DispatcherTimer();
+            _timer.Interval = new TimeSpan(0, 0, 1);
+            _timer.Tick += _timer_Tick;
+
+            MediaPlayer.ActiveSongChanged += MediaPlayer_ActiveSongChanged;
+            MediaPlayer.MediaStateChanged += MediaPlayer_MediaStateChanged;
+        }
+
         /// <summary>
         /// Plays the playlist starting with songToPlay.
         /// </summary>
@@ -154,7 +156,8 @@ namespace EZMedia
             _newSongListPlaying = true;
             _currentSong = findSong(songToPlay);
             Songs = playlist.Songs;
-            Index = findIndexOfSongInCollection(songToPlay);
+            UnshuffledSongs = Songs;
+            Index = findIndexOfSongInCollection(Songs, songToPlay);
             FrameworkDispatcher.Update();
             MediaPlayer.Play(_currentSong);
         }
@@ -169,7 +172,8 @@ namespace EZMedia
             _isPlaylist = false;
             _newSongListPlaying = true;
             Songs = songs;
-            Index = findIndexOfSongInCollection(songToPlay);
+            UnshuffledSongs = Songs;
+            Index = findIndexOfSongInCollection(Songs, songToPlay);
             FrameworkDispatcher.Update();
             MediaPlayer.Play(_library.Songs, Index);
         }
@@ -184,7 +188,8 @@ namespace EZMedia
             _isPlaylist = false;
             _newSongListPlaying = true;
             Songs = album.Songs;
-            Index = findIndexOfSongInCollection(songToPlay);
+            UnshuffledSongs = Songs;
+            Index = findIndexOfSongInCollection(Songs, songToPlay);
             Album albumToPlay = findAlbum(album);
             FrameworkDispatcher.Update();
             MediaPlayer.Play(albumToPlay.Songs, Index);
@@ -200,7 +205,8 @@ namespace EZMedia
             _isPlaylist = false;
             _newSongListPlaying = true;
             Songs = artist.Songs;
-            Index = findIndexOfSongInCollection(songToPlay);
+            UnshuffledSongs = Songs;
+            Index = findIndexOfSongInCollection(Songs, songToPlay);
             Artist artistToPlay = findArtist(artist);
             FrameworkDispatcher.Update();
             MediaPlayer.Play(artistToPlay.Songs, Index);
@@ -211,10 +217,10 @@ namespace EZMedia
         /// </summary>
         /// <param name="songToPlay"></param>
         /// <returns></returns>
-        private int findIndexOfSongInCollection(SongInfo songToPlay)
+        private int findIndexOfSongInCollection(ReadOnlyCollection<SongInfo> songs, SongInfo songToPlay)
         {
             int i = 0;
-            foreach (SongInfo si in Songs)
+            foreach (SongInfo si in songs)
             {
                 if (si.Equals(songToPlay))
                 {
@@ -223,6 +229,80 @@ namespace EZMedia
                 i++;
             }
             return i;
+        }
+
+        /// <summary>
+        /// Shuffles the current song list, but does not stop or change the current song.
+        /// </summary>
+        /// <param name="performShuffle"></param>
+        private void shuffle(bool performShuffle)
+        {
+            if (performShuffle)
+            {
+                if (!_isPlaylist)
+                {
+                    MediaPlayer.IsShuffled = true;
+                    getShuffleListFromQueue();
+                }
+                else
+                {//TODO test out playlist shuffle
+                    makeNewShuffleList();
+                }
+            }
+            else //switches Songs property back to unshuffled order
+            {
+                MediaPlayer.IsShuffled = false;
+                Index = findIndexOfSongInCollection(UnshuffledSongs, CurrentSongInfo);
+                Songs = UnshuffledSongs;
+            }
+        }
+
+        /// <summary>
+        /// Makes a new shuffled list using MediaPlayer.Queue and sets Songs equal to it.
+        /// </summary>
+        private void getShuffleListFromQueue()
+        {
+            List<SongInfo> shuffledList = new List<SongInfo>();
+            for (int i = 0; i < MediaPlayer.Queue.Count; i++)
+            {
+                shuffledList.Add(new SongInfo(MediaPlayer.Queue[i]));
+            }
+
+            Index = 0;
+            Songs = shuffledList.AsReadOnly();
+        }
+
+        /// <summary>
+        /// Code borrowed from http://stackoverflow.com/questions/273313/randomize-a-listt-in-c-sharp
+        /// Makes a new shuffled list based on UnshuffledSongs property.
+        /// </summary>
+        private void makeNewShuffleList()
+        {
+            Random rng = new Random();
+            List<SongInfo> shuffledList = UnshuffledSongs.ToList();
+            int currentSongIndex = 0;
+            int n = Songs.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                SongInfo value = shuffledList[k];
+                shuffledList[k] = shuffledList[n];
+                shuffledList[n] = value;
+
+                if (shuffledList[n].Equals(CurrentSongInfo))
+                {
+                    currentSongIndex = n; //when while loop is done, index of CurrentSongInfo
+                                          //will be in currentSongIndex
+                }
+            }
+            //need to make sure CurrentSong is at Songs[0];
+            SongInfo temp = shuffledList[0];
+            shuffledList[0] = shuffledList[currentSongIndex];
+            shuffledList[currentSongIndex] = temp;
+
+            Index = 0;
+            Songs = shuffledList.AsReadOnly();
         }
 
         public void Resume()
@@ -307,6 +387,7 @@ namespace EZMedia
             CurrentSongInfo = Songs[Index];
         }
 
+        // TODO check to see what MediaState is when playing songs from playlist
         private void MediaPlayer_MediaStateChanged(object sender, EventArgs e)
         {
             
@@ -354,7 +435,7 @@ namespace EZMedia
                     updateCurrentSongInfo(1);
                 }
             }
-            OnCurrentMediaChanged(new MediaChangedEventArgs(CurrentSongInfo));
+            OnCurrentMediaChanged(new MediaChangedEventArgs(CurrentSongInfo, Index));
             _timer.Start();
         }
 
@@ -381,6 +462,7 @@ namespace EZMedia
         public event EventHandler<MediaChangedEventArgs> CurrentMediaChanged;
         public event EventHandler<MediaStateEventArgs> MediaStateChanged;
         public event EventHandler<MediaStateEventArgs> TimerIntervalReached;
+        public event EventHandler<EventArgs> SongOrderChanged;
 
         private void OnCurrentMediaChanged(MediaChangedEventArgs e)
         {
@@ -403,6 +485,15 @@ namespace EZMedia
         private void OnTimerIntervalReached(MediaStateEventArgs e)
         {
             EventHandler<MediaStateEventArgs> handler = TimerIntervalReached;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        private void OnSongOrderChanged(EventArgs e)
+        {
+            EventHandler<EventArgs> handler = SongOrderChanged;
             if (handler != null)
             {
                 handler(this, e);

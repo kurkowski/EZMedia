@@ -48,7 +48,22 @@ namespace EZMedia
             EZMediaPivot.SelectedIndex = 0;
             App.ViewModel.SongPlayingVM.UpdateNowPlayingSong(songs, songToPlay);
             NowPlayingPivot.DataContext = App.ViewModel.SongPlayingVM;
-            //NavigationService.Navigate(new Uri("/Views/SongPlayingPage.xaml", UriKind.Relative));
+        }
+
+        private void highlightCurrentSong()
+        {
+            if (App.ViewModel.SongPlayingVM.Songs.Count > 0)
+            {
+                int index = App.ViewModel.SongPlayingVM.CurrentSongIndex;
+                NowPlayingList.UpdateLayout();
+                NowPlayingList.ScrollIntoView(NowPlayingList.Items[index]);
+                NowPlayingList.SelectedIndex = index;
+            }
+        }
+
+        private void NowPlayingList_LayoutUpdated(object sender, EventArgs e)
+        {
+            highlightCurrentSong();
         }
 
         private void LongListSelectorArtists_Tap(object sender, System.Windows.Input.GestureEventArgs e)
@@ -71,6 +86,10 @@ namespace EZMedia
         {
             switch (((Pivot)sender).SelectedIndex)
             {
+                case 0:
+                    ApplicationBar.IsVisible = false;
+
+                    break;
                 case 1:
                     ApplicationBar.IsVisible = true;
                     break;
@@ -78,6 +97,11 @@ namespace EZMedia
                     ApplicationBar.IsVisible = false;
                     break;
             }
+        }
+
+        private void StackPanel_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+
         }
 
         private void ApplicationBarIconButton_Click(object sender, EventArgs e)

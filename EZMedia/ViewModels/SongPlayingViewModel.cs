@@ -24,15 +24,19 @@ namespace EZMedia.ViewModels
             //initialize fields
             _media_player = new EZMediaPlayer();
             _library = new MediaLibrary();
-            _songs = new List<SongInfo>();
 
             //subscribe to events
             _media_player.CurrentMediaChanged += _media_player_CurrentMediaChanged;
             _media_player.MediaStateChanged += _media_player_MediaStateChanged;
             _media_player.TimerIntervalReached += _media_player_TimerIntervalReached;
+            _media_player.SongOrderChanged += _media_player_SongOrderChanged;
 
             //initialize properties
             PlayCommand = new PlayPauseCommand(_media_player);
+            NextSongCommand = new NextSongCommand(_media_player);
+            PreviousSongCommand = new PreviousSongCommand(_media_player);
+            ShuffleSongsCommand = new ShuffleSongsCommand(_media_player, this);
+            RepeatSongsCommand = new RepeatSongsCommand(_media_player, this);
 
             ShuffleSongPictureSource = "/Assets/MusicButtons/ShuffleSongsNotClicked.png";
             RepeatSongPictureSource = "/Assets/MusicButtons/RepeatSongsNotClicked.png";
@@ -55,10 +59,37 @@ namespace EZMedia.ViewModels
                 NotifyPropertyChanged("PlayCommand");
             }
         }
+
         public ICommand PreviousSongCommand { get; private set; }
         public ICommand NextSongCommand { get; private set; }
-        public ICommand ShuffleSongsCommand { get; private set; }
-        public ICommand RepeatSongsCommand { get; private set; }
+
+        private ICommand _shuffleSongsCommand;
+        public ICommand ShuffleSongsCommand 
+        {
+            get
+            {
+                return _shuffleSongsCommand;
+            }
+            private set
+            {
+                _shuffleSongsCommand = value;
+                NotifyPropertyChanged("ShuffleSongsCommand");
+            }
+        }
+
+        private ICommand _repeatSongsCommand;
+        public ICommand RepeatSongsCommand 
+        {
+            get
+            {
+                return _repeatSongsCommand;
+            }
+            private set
+            {
+                _repeatSongsCommand = value;
+                NotifyPropertyChanged("RepeatSongsCommand");
+            }
+        }
 
         private string _playSongPictureSource;
         public string PlaySongPictureSource
@@ -102,20 +133,17 @@ namespace EZMedia.ViewModels
             }
         }
 
-        private List<SongInfo> _songs;
+        private ReadOnlyCollection<SongInfo> _songs;
         public ReadOnlyCollection<SongInfo> Songs
         {
             get
             {
-                return _songs.AsReadOnly();
+                return _songs;
             }
             private set
             {
-                if (value != null)
-                {
-                    _songs.Clear();
-                    _songs.AddRange(value.ToList());
-                }
+                _songs = value;
+                NotifyPropertyChanged("Songs");
             }
         }
         private SongInfo _currentSongInfo;
@@ -131,7 +159,19 @@ namespace EZMedia.ViewModels
                 NotifyPropertyChanged("CurrentSongInfo");
             }
         }
+
         private TimeSpan _currentTimeOfSong;
+
+        private int _index;
+        public int CurrentSongIndex
+        {
+            get { return _index; }
+            set 
+            { 
+                _index = value;
+                NotifyPropertyChanged("CurrentSongIndex");
+            }
+        }
 
         private string _songTime;
         public string SongTime
@@ -197,6 +237,25 @@ namespace EZMedia.ViewModels
         }
 
         /// <summary>
+        /// make sure Songs is set before you use this method
+        /// </summary>
+        /// <param name="song"></param>
+        /// <returns></returns>
+        private int findIndex(SongInfo song)
+        {
+            int i = 0;
+            foreach (SongInfo si in Songs)
+            {
+                if (si.Equals(song))
+                {
+                    break;
+                }
+                i++;
+            }
+            return i;
+        }
+
+        /// <summary>
         /// Call this when you change the current song to the next or previous song in the collection.
         /// </summary>
         /// <param name="song"></param>
@@ -206,6 +265,7 @@ namespace EZMedia.ViewModels
             AlbumArt = findAlbumArt(song);
             _currentTimeOfSong = TimeSpan.FromSeconds(0);
             SongTime = _currentTimeOfSong.ToString();
+            CurrentSongIndex = findIndex(song);
         }
 
         private BitmapImage findAlbumArt(SongInfo song)
@@ -244,7 +304,7 @@ namespace EZMedia.ViewModels
         private void _media_player_CurrentMediaChanged(object sender, MediaChangedEventArgs e)
         {
             updateSongInfo(e.SongNowPlaying);
-            
+            CurrentSongIndex = e.Index;
         }
 
         private void _media_player_MediaStateChanged(object sender, MediaStateEventArgs e)
@@ -262,6 +322,11 @@ namespace EZMedia.ViewModels
         private void _media_player_TimerIntervalReached(object sender, MediaStateEventArgs e)
         {
             SongTime = e.PlayPosition.ToString(@"hh\:mm\:ss");
+        }
+
+        private void _media_player_SongOrderChanged(object sender, EventArgs e)
+        {
+            Songs = _media_player.Songs;
         }
     }
 }

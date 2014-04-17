@@ -92,36 +92,36 @@
             <phone:PivotItem Name="NowPlayingPivot" Header="playing" Margin="12,30,12,5">
                 <Grid x:Name="ContentPanel" Grid.Row="1">
                     <TextBlock Text="{Binding CurrentSongInfo.ArtistName}" Margin="7,0,192,541" Style="{StaticResource PhoneTextTitle1Style}" FontSize="32"/>
-                    <TextBlock Text="{Binding CurrentSongInfo.Album}" Margin="7,55,192,486" Style="{StaticResource PhoneTextTitle1Style}" FontSize="24"/>
-                    <Image Source="{Binding AlbumArt}" Margin="10,117,199,200"></Image>
-                    <TextBlock Text="{Binding SongTime}" Margin="269,101,4,444"></TextBlock>
+                    <TextBlock Text="{Binding CurrentSongInfo.Album}" Margin="7,55,192,508" Style="{StaticResource PhoneTextTitle1Style}" FontSize="24"/>
+                    <Image Source="{Binding AlbumArt}" Margin="7,107,195,250"></Image>
+                    <TextBlock Text="{Binding SongTime}" Margin="21,351,252,222"></TextBlock>
                     
-                    <ListBox  ItemsSource="{Binding Songs}" 
-                                             Name="NowPlayingList" 
-                                             Margin="272,157,10,200">
+                    <ListBox ItemsSource="{Binding Songs}" 
+                             Name="NowPlayingList" 
+                             Margin="268,107,0,226">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
+                                <StackPanel Tap="StackPanel_Tap" Orientation="Horizontal">
                                     <Image Opacity="0.0"></Image>
-                                    <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="20"/>
+                                    <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="26"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
                     
-                    <Button BorderThickness="0" Width="80" Height="80" Name="PrevButton" Margin="40,371,337,85">
+                    <Button Command="{Binding PreviousSongCommand}" BorderThickness="0" Width="80" Height="80" Name="PrevButton" Margin="40,371,337,85">
                         <Image Source="/Assets/MusicButtons/PreviousSong.png"/>
                     </Button>
                     <Button Command="{Binding PlayCommand}" BorderThickness="0" Width="80" Height="80" Name="PlayButton" Margin="184,371,199,85">
                         <Image Source="{Binding PlaySongPictureSource}"/>
                     </Button>
-                    <Button BorderThickness="0" Width="80" Height="80" Name="NextButton" Margin="328,371,50,85">
+                    <Button Command="{Binding NextSongCommand}" BorderThickness="0" Width="80" Height="80" Name="NextButton" Margin="328,371,50,85">
                         <Image Source="/Assets/MusicButtons/NextSong.png"/>
                     </Button>
-                    <Button BorderThickness="0" Width="80" Height="80" Name="ShuffleButton" Margin="112,456,241,0">
+                    <Button Command="{Binding ShuffleSongsCommand}" BorderThickness="0" Width="80" Height="80" Name="ShuffleButton" Margin="112,456,241,0">
                         <Image Source="{Binding ShuffleSongPictureSource}"/>
                     </Button>
-                    <Button BorderThickness="0" Width="80" Height="80" Name="RepeatButton" Margin="256,456,97,0">
+                    <Button Command="{Binding RepeatSongsCommand}" BorderThickness="0" Width="80" Height="80" Name="RepeatButton" Margin="256,456,97,0">
                         <Image Source="{Binding RepeatSongPictureSource}"/>
                     </Button>
                 </Grid>
@@ -148,7 +148,14 @@
             <!--Pivot item two-->
             <phone:PivotItem Header="artists">
                 <!--Double line list no text wrapping-->
-                <phone:LongListSelector Margin="0,0,-12,0" ItemsSource="{Binding Artists}">
+                <phone:LongListSelector Margin="0,0,-12,0" 
+                                        ItemsSource="{Binding GroupedArtistList}"
+                                        GroupHeaderTemplate="{StaticResource NameGroupHeaderTemplate}"
+                                        JumpListStyle="{StaticResource NameJumpListStyle}"
+                                        IsGroupingEnabled="True"
+                                        HideEmptyGroups="True"
+                                        LayoutMode="List"
+                                        >
                     <phone:LongListSelector.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="0,0,0,17" 
@@ -164,7 +171,14 @@
 
             <phone:PivotItem Header="albums">
                 <!--Double line list no text wrapping-->
-                <phone:LongListSelector Margin="0,0,-12,0" ItemsSource="{Binding Albums}">
+                <phone:LongListSelector Margin="0,0,-12,0" 
+                                        ItemsSource="{Binding GroupedAlbumList}"
+                                        GroupHeaderTemplate="{StaticResource NameGroupHeaderTemplate}"
+                                        JumpListStyle="{StaticResource NameJumpListStyle}"
+                                        IsGroupingEnabled="True"
+                                        HideEmptyGroups="True"
+                                        LayoutMode="List"
+                                        >
                     <phone:LongListSelector.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="0,10,0,0" 

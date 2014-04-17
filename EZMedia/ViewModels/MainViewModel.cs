@@ -39,6 +39,24 @@ namespace EZMedia.ViewModels
             get { return _GroupedSongList; }
         }
 
+        private List<StringKeyGroup<IMediaInfo>> _GroupedAlbumList;
+        public List<StringKeyGroup<IMediaInfo>> GroupedAlbumList
+        {
+            get { return _GroupedAlbumList; }
+        }
+
+        private List<StringKeyGroup<IMediaInfo>> _GroupedArtistList;
+        public List<StringKeyGroup<IMediaInfo>> GroupedArtistList
+        {
+            get { return _GroupedArtistList; }
+        }
+
+        private List<StringKeyGroup<IMediaInfo>> _GroupedPlaylistList;
+        public List<StringKeyGroup<IMediaInfo>> GroupedPlaylistList
+        {
+            get { return _GroupedPlaylistList; }
+        }
+
         private List<AlbumInfo> _Albums;
         public ReadOnlyCollection<AlbumInfo> Albums 
         {
@@ -97,6 +115,8 @@ namespace EZMedia.ViewModels
             }
 
             _GroupedSongList = StringKeyGroup<IMediaInfo>.CreateGroups(_Songs);
+            _GroupedArtistList = StringKeyGroup<IMediaInfo>.CreateGroups(_Artists);
+            _GroupedAlbumList = StringKeyGroup<IMediaInfo>.CreateGroups(_Albums);
 
             this.IsDataLoaded = true;
         }

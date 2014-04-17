@@ -166,7 +166,14 @@ namespace EZMedia
             }
             else
             {
-                AlbumArt = new BitmapImage(new Uri("/Assets/NoAlbumArt.png", UriKind.Relative));
+                try
+                {
+                    AlbumArt = new BitmapImage(new Uri("/Assets/NoAlbumArt.png", UriKind.Relative));
+                }
+                catch (Exception e)
+                {
+                    e.ToString();
+                }
             }
         }
 

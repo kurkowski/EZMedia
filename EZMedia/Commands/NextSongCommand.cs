@@ -10,9 +10,10 @@ namespace EZMedia.Commands
 {
     public class NextSongCommand : ICommand
     {
-        public NextSongCommand()
+        private EZMediaPlayer _mediaPlayer;
+        public NextSongCommand(EZMediaPlayer mediaPlayer)
         {
-
+            _mediaPlayer = mediaPlayer;
         }
 
         public bool CanExecute(object parameter)
@@ -24,7 +25,13 @@ namespace EZMedia.Commands
 
         public void Execute(object parameter)
         {
-            MediaPlayer.Stop();
+            if (_mediaPlayer.Songs != null)
+            {
+                if (_mediaPlayer.Songs.Count > 0)
+                {
+                    _mediaPlayer.Next();
+                }
+            }
         }
     }
 }
