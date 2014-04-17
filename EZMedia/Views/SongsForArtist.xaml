@@ -17,9 +17,20 @@
         <DataTemplate x:Key="songDisplayTemplate">
             <StackPanel Margin="0,0,0,17" Orientation="Horizontal">
                 <CheckBox Visibility="Collapsed" Margin="0,0,0,0"></CheckBox>
-                <StackPanel >
+                <StackPanel Tap="StackPanel_Tap" Tag="{Binding}">
                     <TextBlock Text="{Binding Name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
-                    <TextBlock Text="{Binding ArtistName}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="albumDisplayTemplate">
+            <StackPanel Margin="0,10,0,0" 
+                        Orientation="Horizontal" 
+                        Tag="{Binding }"
+                        Tap="StackPanel_Tap_1">
+                <Image Source="{Binding AlbumArt}" Width="150"></Image>
+                <StackPanel Margin="0,0,0,17">
+                    <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="36"/>
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
@@ -70,12 +81,29 @@
         <phone:Pivot Title="EZMedia">
             <!--Pivot item one-->
             <phone:PivotItem Header="albums">
-                <Grid/>
+                <Grid>
+                    <phone:LongListSelector 
+                        ItemsSource="{Binding CurrentArtistInfo.Albums}"
+                        ItemTemplate="{StaticResource albumDisplayTemplate}"
+                        >
+                        
+                    </phone:LongListSelector>
+                </Grid>
             </phone:PivotItem>
 
             <!--Pivot item two-->
             <phone:PivotItem Header="songs">
-                <Grid/>
+                <phone:LongListSelector 
+                        ItemsSource="{Binding GroupedSongList}"
+                        ItemTemplate="{StaticResource songDisplayTemplate}"
+                        GroupHeaderTemplate="{StaticResource NameGroupHeaderTemplate}"
+                        JumpListStyle="{StaticResource NameJumpListStyle}"
+                        IsGroupingEnabled="True"
+                        HideEmptyGroups="True"
+                        LayoutMode="List"
+                        >
+
+                </phone:LongListSelector>
             </phone:PivotItem>
         </phone:Pivot>
     </Grid>

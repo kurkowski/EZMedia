@@ -13,9 +13,18 @@ namespace EZMedia.ViewModels
         public SongsForArtistViewModel(ArtistInfo artistInfo)
         {
             CurrentArtistInfo = artistInfo;
+            _GroupedSongList = StringKeyGroup<IMediaInfo>.CreateGroups(artistInfo.Songs);
         }
 
+        public SongsInAlbumViewModel SongInAlbumVM { get; set; }
+
         public ArtistInfo CurrentArtistInfo { get; set; }
+
+        private List<StringKeyGroup<IMediaInfo>> _GroupedSongList;
+        public List<StringKeyGroup<IMediaInfo>> GroupedSongList
+        {
+            get { return _GroupedSongList; }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(String propertyName)
