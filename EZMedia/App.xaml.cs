@@ -35,6 +35,19 @@ namespace EZMedia
             }
         }
 
+        private static SongsInAlbumViewModel _albumVM;
+        public static SongsInAlbumViewModel AlbumViewModel
+        {
+            get
+            {
+                return _albumVM;
+            }
+            set
+            {
+                _albumVM = value;
+            }
+        }
+
         /// <summary>
         /// Provides easy access to the root frame of the Phone Application.
         /// </summary>

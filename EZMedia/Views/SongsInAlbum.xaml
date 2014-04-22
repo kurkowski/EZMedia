@@ -15,21 +15,25 @@
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <!--TitlePanel contains the name of the application and page title-->
-        <StackPanel Grid.Row="0" Margin="12,17,0,28">
-            <TextBlock Text="EZMedia" Style="{StaticResource PhoneTextNormalStyle}"/>
-            <TextBlock Text="{Binding CurrentAlbumInfo.ArtistName}" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
-        </StackPanel>
+        <TextBlock Text="EZMedia" Style="{StaticResource PhoneTextNormalStyle}" Margin="12,10,12,732"/>
+        <TextBlock Text="{Binding CurrentAlbumInfo.Name}" Style="{StaticResource PhoneTextLargeStyle}" FontSize="40"  Margin="87,36,12,680"/>
+        <TextBlock Text="{Binding CurrentAlbumInfo.ArtistName}" Style="{StaticResource PhoneTextNormalStyle}" FontSize="28" Margin="87,88,123,644" />
 
         <!--ContentPanel - place additional content here-->
-        <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+        <Image  Source="{Binding CurrentAlbumInfo.AlbumArt}" Margin="87,142,147,388"/>
 
-        </Grid>
+        <Border Margin="0,395,0,371" BorderBrush="{StaticResource PhoneAccentBrush}" BorderThickness="1"></Border>
+        <phone:LongListSelector Margin="10,402,10,65" ItemsSource="{Binding CurrentAlbumInfo.Songs}">
+            <phone:LongListSelector.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="0,10,0,0" 
+                                Orientation="Horizontal"
+                                Tap="StackPanel_Tap">
+                        <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextNormalStyle}" FontSize="36"/>
+                    </StackPanel>
+                </DataTemplate>
+            </phone:LongListSelector.ItemTemplate>
+        </phone:LongListSelector>
     </Grid>
 
 </phone:PhoneApplicationPage>

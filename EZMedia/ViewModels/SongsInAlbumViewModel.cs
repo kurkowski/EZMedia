@@ -15,8 +15,19 @@ namespace EZMedia.ViewModels
             CurrentAlbumInfo = album;
         }
 
-        public AlbumInfo CurrentAlbumInfo { get; set; }
-
+        private AlbumInfo _currentAlbumInfo;
+        public AlbumInfo CurrentAlbumInfo
+        {
+            get
+            {
+                return _currentAlbumInfo;
+            }
+            set
+            {
+                _currentAlbumInfo = value;
+                NotifyPropertyChanged("CurrentAlbumInfo");
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(String propertyName)
         {

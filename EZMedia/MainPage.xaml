@@ -93,13 +93,13 @@
                 <Grid x:Name="ContentPanel" Grid.Row="1">
                     <TextBlock Text="{Binding CurrentSongInfo.ArtistName}" Margin="10,52,189,508" Style="{StaticResource PhoneTextTitle1Style}" FontSize="26"/>
                     <TextBlock Text="{Binding CurrentSongInfo.Album}" Margin="10,74,189,489" Style="{StaticResource PhoneTextTitle1Style}" FontSize="24" />
-                    <TextBlock Text="{Binding CurrentSongInfo.Name}" Margin="10,0,189,544" Style="{StaticResource PhoneTextTitle1Style}" FontSize="32" />
+                    <TextBlock Text="{Binding CurrentSongInfo.Name}" Margin="10,0,108,544" Style="{StaticResource PhoneTextTitle1Style}" FontSize="32" />
                     <Image Source="{Binding AlbumArt}" Margin="7,107,195,250"></Image>
                     <TextBlock Text="{Binding SongTime}" Margin="21,351,252,222"></TextBlock>
 
                     <ListBox ItemsSource="{Binding Songs}" 
                              Name="NowPlayingList" 
-                             Margin="268,107,0,226">
+                             Margin="268,92,0,226">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Tap="StackPanel_Tap" Orientation="Horizontal">

@@ -79,6 +79,7 @@ namespace EZMedia
             StackPanel lls = (StackPanel)sender;
             AlbumInfo ai = (AlbumInfo)lls.Tag;
             App.ViewModel.SongsInAlbumVM = new SongsInAlbumViewModel(ai);
+            App.AlbumViewModel = App.ViewModel.SongsInAlbumVM;
             NavigationService.Navigate(new Uri("/Views/SongsInAlbum.xaml", UriKind.Relative));
         }
 

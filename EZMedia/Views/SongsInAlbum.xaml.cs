@@ -15,7 +15,18 @@ namespace EZMedia.Views
         public SongsInAlbum()
         {
             InitializeComponent();
-            DataContext = App.ViewModel.SongsInAlbumVM;
+            DataContext = App.AlbumViewModel;
         }
+
+        private void StackPanel_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            StackPanel sp = sender as StackPanel;
+            SongInfo song = sp.DataContext as SongInfo;
+            AlbumInfo album = App.AlbumViewModel.CurrentAlbumInfo;
+            App.ViewModel.SongPlayingVM.UpdateNowPlayingSong(album, song);
+            NavigationService.Navigate(new Uri("/MainPage.xaml", UriKind.Relative));
+        }
+
+
     }
 }

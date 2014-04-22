@@ -32,6 +32,7 @@ namespace EZMedia.Views
             StackPanel sp = sender as StackPanel;
             AlbumInfo album = (AlbumInfo)sp.Tag;
             App.ViewModel.SongsForArtistVM.SongInAlbumVM = new ViewModels.SongsInAlbumViewModel(album);
+            App.AlbumViewModel = App.ViewModel.SongsForArtistVM.SongInAlbumVM;
             NavigationService.Navigate(new Uri("/Views/SongsInAlbum.xaml", UriKind.Relative));
         }
     }
