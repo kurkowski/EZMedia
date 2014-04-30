@@ -19,14 +19,21 @@ namespace EZMedia
 {
     public partial class MainPage : PhoneApplicationPage
     {
+        IApplicationBar SongPivotAppBar;
+        IApplicationBar PlaylistPivotSelectAppBar;
+
+
         // Constructor
         public MainPage()
         {
             InitializeComponent();
             DataContext = App.ViewModel;
             NowPlayingPivot.DataContext = App.ViewModel.SongPlayingVM;
+            PlaylistsPivot.DataContext = App.ViewModel.PlaylistsVM;
             // Sample code to localize the ApplicationBar
-            BuildApplicationBar();
+            BuildSongPivotAppBar();
+            BuildAppBarForPlaylistsSelect();
+            ApplicationBar = SongPivotAppBar;
         }
 
         // Load data for the ViewModel Items
@@ -89,9 +96,13 @@ namespace EZMedia
             {
                 case 0:
                     ApplicationBar.IsVisible = false;
-
                     break;
-                case 1:
+                case 1: //SongPivot
+                    ApplicationBar = SongPivotAppBar;
+                    ApplicationBar.IsVisible = true;
+                    break;
+                case 4: //PlaylistPivot
+                    ApplicationBar = PlaylistPivotSelectAppBar;
                     ApplicationBar.IsVisible = true;
                     break;
                 default:
@@ -100,30 +111,70 @@ namespace EZMedia
             }
         }
 
-        private void StackPanel_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        {
-
-        }
-
-        private void ApplicationBarIconButton_Click(object sender, EventArgs e)
+        private void QueueStackPanel_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
 
         }
 
         //Sample code for building a localized ApplicationBar
-        private void BuildApplicationBar()
+        private void BuildSongPivotAppBar()
         {
             // Set the page's ApplicationBar to a new instance of ApplicationBar.
-            ApplicationBar = new ApplicationBar();
+            SongPivotAppBar = new ApplicationBar();
 
             // Create a new button and set the text value to the localized string from AppResources.
             ApplicationBarIconButton appBarButton = new ApplicationBarIconButton(new Uri("/Assets/AppBar/appbar.add.rest.png", UriKind.Relative));
             appBarButton.Text = AppResources.AppBarButtonText;
-            ApplicationBar.Buttons.Add(appBarButton);
+            appBarButton.Click += appBarSelectSongButton_Click;
+            SongPivotAppBar.Buttons.Add(appBarButton);
 
             // Create a new menu item with the localized string from AppResources.
             ApplicationBarMenuItem appBarMenuItem = new ApplicationBarMenuItem(AppResources.AppBarMenuItemText);
-            ApplicationBar.MenuItems.Add(appBarMenuItem);
+            SongPivotAppBar.MenuItems.Add(appBarMenuItem);
         }
+
+        void appBarSelectSongButton_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void BuildAppBarForPlaylistsSelect()
+        {
+            // Set the page's ApplicationBar to a new instance of ApplicationBar.
+            PlaylistPivotSelectAppBar = new ApplicationBar();
+
+            ApplicationBarIconButton createButton = new ApplicationBarIconButton(new Uri("/Assets/AppBar/add.png", UriKind.Relative));
+            createButton.Text = "create";
+            createButton.Click += NewPlaylistButton_Tap;
+            PlaylistPivotSelectAppBar.Buttons.Add(createButton);
+
+            // Create a new button and set the text value to the localized string from AppResources.
+            ApplicationBarIconButton appBarButton = new ApplicationBarIconButton(new Uri("/Assets/AppBar/check.png", UriKind.Relative));
+            appBarButton.Text = "select";
+            appBarButton.Click += appBarSelectButton_Click;
+            PlaylistPivotSelectAppBar.Buttons.Add(appBarButton);
+        }
+
+        void appBarSelectButton_Click(object sender, EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/Views/SelectPlaylists.xaml", UriKind.Relative));
+        }
+
+        private void NewPlaylistButton_Tap(object sender, EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/Views/EnterPlaylistName.xaml", UriKind.Relative));
+        }
+
+        /// <summary>
+        /// Play selected playlist.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PlaylistStackPanel_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+
+        }
+
+        
     }
 }

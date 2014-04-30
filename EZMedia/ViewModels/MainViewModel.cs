@@ -21,7 +21,6 @@ namespace EZMedia.ViewModels
             _Songs = new List<SongInfo>();
             _Albums = new List<AlbumInfo>();
             _Artists = new List<ArtistInfo>();
-            this.Playlists = new ObservableCollection<EZPlaylist>();
         }
 
         /// <summary>
@@ -69,7 +68,6 @@ namespace EZMedia.ViewModels
             get { return _Artists.AsReadOnly(); }
         }
 
-        public ObservableCollection<EZPlaylist> Playlists { get; private set; }
 
         private SongPlayingViewModel songPlayingVM = null;
         public SongPlayingViewModel SongPlayingVM 
@@ -85,6 +83,19 @@ namespace EZMedia.ViewModels
         }
         public SongsForArtistViewModel SongsForArtistVM { get; set; }
         public SongsInAlbumViewModel SongsInAlbumVM { get; set; }
+
+        private PlaylistsViewModel playlistsVM = null;
+        public PlaylistsViewModel PlaylistsVM
+        {
+            get
+            {
+                if (playlistsVM == null)
+                {
+                    playlistsVM = new PlaylistsViewModel();
+                }
+                return playlistsVM;
+            }
+        }
 
         private MediaLibrary _library;
 

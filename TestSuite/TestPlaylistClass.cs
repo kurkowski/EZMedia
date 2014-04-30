@@ -276,6 +276,18 @@ namespace TestSuite
         }
 
         [TestMethod]
+        public void TestDeletingExistingPlaylistFile()
+        {
+            EZPlaylist playlist = new EZPlaylist("YUP");
+            playlist.SavePlaylist();
+            EZPlaylist.DeletePlaylist("YUP");
+
+            playlist = new EZPlaylist("NOPE");
+            playlist.ReadFromFile("YUP");
+            Assert.IsTrue(playlist.Name == "NOPE");
+        }
+
+        [TestMethod]
         public void TestSongEqualityToSongInfo()
         {
             MediaLibrary library = new MediaLibrary();

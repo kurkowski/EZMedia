@@ -401,14 +401,23 @@ namespace EZMedia
     /// V1.0 Represents a playlist of songs. Songs can be arranged by Artist, Album,
     /// Alphabetically, or Custom order
     /// </summary>
-    public class EZPlaylist : IList<SongInfo>
+    public class EZPlaylist : IList<SongInfo>, IMediaInfo
     {
-        protected const int _maxPlaylistNameLength = 25;
+        public const int MaxNameLength = 25;
+        public const int MaxPlaylistItems = 200;
+        
         protected List<SongInfo> _playlist;
         string _name;
         public string Name
         {
             get { return _name; }
+            set { _name = sanitizeString(value); }
+        }
+
+        public string ArtistName
+        {
+            get { return _name; }
+            set { _name = sanitizeString(value); }
         }
 
         public ReadOnlyCollection<SongInfo> Songs
@@ -560,12 +569,12 @@ namespace EZMedia
         private string sanitizeString(string playlistName)
         {
             string temp;
-            if (playlistName.Length > _maxPlaylistNameLength)
-                temp = playlistName.Substring(0, _maxPlaylistNameLength);
+            if (playlistName.Length > MaxNameLength)
+                temp = playlistName.Substring(0, MaxNameLength);
             else
                 temp = playlistName;
 
-            StringBuilder sb = new StringBuilder(_maxPlaylistNameLength);
+            StringBuilder sb = new StringBuilder(MaxNameLength);
             foreach (char c in temp)
             {
                 if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '.' || c == '_' || c == ' ' || c == '(' || c == ')' || c == '!'
@@ -587,12 +596,18 @@ namespace EZMedia
         //Deletes the playlist in memory and on disk.
         public void DeletePlaylist()
         {
+            DeletePlaylist(Name);
+            _playlist.Clear();
+        }
+
+        //Deletes the playlist in storage.
+        public static void DeletePlaylist(string name)
+        {
             using (IsolatedStorageFile myIsolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 try
                 {
-                    myIsolatedStorage.DeleteFile("EZ" + Name + ".xml");
-                    _playlist.Clear();
+                    myIsolatedStorage.DeleteFile("EZ" + name + ".xml");
                 }
                 catch { }
             }

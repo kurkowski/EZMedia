@@ -93,6 +93,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Commands\NewPlaylistCommand.cs" />
     <Compile Include="Commands\NextSongCommand.cs" />
     <Compile Include="Commands\PlayPauseCommand.cs" />
     <Compile Include="Commands\PreviousSongCommand.cs" />
@@ -115,10 +116,20 @@
     </Compile>
     <Compile Include="ViewModels\ItemViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\PlayingQueueViewModel.cs" />
+    <Compile Include="ViewModels\PlaylistsViewModel.cs" />
+    <Compile Include="ViewModels\SinglePlaylistViewModel.cs" />
     <Compile Include="ViewModels\SongPlayingViewModel.cs" />
     <Compile Include="ViewModels\SongsForArtistViewModel.cs" />
     <Compile Include="ViewModels\SongsInAlbumViewModel.cs" />
+    <Compile Include="Views\EnterPlaylistName.xaml.cs">
+      <DependentUpon>EnterPlaylistName.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SelectPlaylists.xaml.cs">
+      <DependentUpon>SelectPlaylists.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SinglePlaylist.xaml.cs">
+      <DependentUpon>SinglePlaylist.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SongsForArtist.xaml.cs">
       <DependentUpon>SongsForArtist.xaml</DependentUpon>
     </Compile>
@@ -132,6 +143,18 @@
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
     <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EnterPlaylistName.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SelectPlaylists.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SinglePlaylist.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -152,6 +175,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\AlignmentGrid.png" />
+    <Content Include="Assets\AppBar\add.png" />
+    <Content Include="Assets\AppBar\check.png" />
+    <Content Include="Assets\AppBar\delete.png" />
+    <Content Include="Assets\AppBar\edit.png" />
     <Content Include="Assets\ApplicationIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

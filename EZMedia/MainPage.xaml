@@ -102,7 +102,7 @@
                              Margin="268,92,0,226">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Tap="StackPanel_Tap" Orientation="Horizontal">
+                                <StackPanel Tap="QueueStackPanel_Tap" Orientation="Horizontal">
                                     <Image Opacity="0.0"></Image>
                                     <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="26" Foreground="DimGray"/>
                                     
@@ -199,16 +199,16 @@
             </phone:PivotItem>
 
 
-            <phone:PivotItem Header="playlists" Margin="12,10,12,0">
+            <phone:PivotItem Header="playlists" Name="PlaylistsPivot" Margin="12,10,12,0">
                 <Grid Margin="0,-18,0,0">
-                    <Button Name="NewPlaylistButton" Content="New" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" FontSize="24" Height="70" FontWeight="Bold"/>
-
                     <!--Double line list no text wrapping-->
-                    <phone:LongListSelector Margin="0,75,-12,0" ItemsSource="{Binding Playlists}" >
+                    <phone:LongListSelector Name="PlaylistsLLS" Margin="0,75,-12,0" ItemsSource="{Binding Playlists}" >
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Margin="0,0,0,17">
-                                    <TextBlock Text="{Binding Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <StackPanel  Margin="0,0,0,17" Tap="PlaylistStackPanel_Tap">
+                                        <TextBlock Text="{Binding Media.Name}" TextWrapping="NoWrap" Margin="12,0,0,0" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
